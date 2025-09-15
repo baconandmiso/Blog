@@ -15,7 +15,7 @@ public class ArticleCategory
     /// </summary>
     public required ulong CategoryId { get; set; }
 
-    public List<Article> Articles { get; set; } = new ();
+    public ICollection<Article> Articles { get; set; } = new List<Article>();
 
-    public List<Category> Categories { get; set; } = new ();
+    public ICollection<Category> Categories { get; set; } = new List<Category>();
 }

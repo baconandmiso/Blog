@@ -15,5 +15,5 @@ public class Category
     /// </summary>
     public required string Name { get; set; }
 
-    public List<ArticleCategory> ArticleCategories { get; set; } = new ();
+    public ICollection<ArticleCategory> ArticleCategories { get; set; } = new List<ArticleCategory>();
 }
