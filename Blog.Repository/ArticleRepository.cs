@@ -17,7 +17,7 @@ public class ArticleRepository : Repository<Article>, IArticleRepository
     {
         return await _context.Articles
             .Where(a => a.IsPublished)
-            .Include(a => a.articles)
+            .Include(a => a.ArticleCategories)
             .OrderByDescending(a => a.PublishedAt)
             .ToListAsync();
     }
