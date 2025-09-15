@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Blog.AppHost/Blog.AppHost.csproj" />
+  <Project Path="Blog.Entity/Blog.Entity.csproj" />
+  <Project Path="Blog.Repository/Blog.Repository.csproj" />
+  <Project Path="Blog.ServiceDefaults/Blog.ServiceDefaults.csproj" />
+  <Project Path="Blog.Services/Blog.Services.csproj" />
+  <Project Path="WebApi/WebApi.csproj" />
+</Solution>
