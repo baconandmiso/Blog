@@ -46,7 +46,7 @@ public class Article
     public DateTimeOffset? PublishedAt { get; set; }
 
     /// <summary>
-    /// カテゴリーーーー
+    /// カテゴリー
     /// </summary>
-    public ICollection<ArticleCategory> articles { get; set; } = new List<ArticleCategory>();
+    public ICollection<ArticleCategory> ArticleCategories { get; set; } = new List<ArticleCategory>();
 }
