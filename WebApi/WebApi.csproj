@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -21,6 +21,10 @@
     <ProjectReference Include="..\Blog.Repository\Blog.Repository.csproj" />
     <ProjectReference Include="..\Blog.ServiceDefaults\Blog.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Blog.Services\Blog.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>
