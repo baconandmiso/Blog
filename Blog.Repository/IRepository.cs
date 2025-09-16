@@ -11,7 +11,7 @@ public interface IRepository<T> where T : class
     /// </summary>
     /// <param name="id">エンティティID</param>
     /// <returns></returns>
-    Task<T?> GetByIdAsync(ulong id);
+    Task<T?> GetByIdAsync(long id);
 
     /// <summary>
     /// エンティティを全件取得します
