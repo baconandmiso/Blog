@@ -20,7 +20,7 @@ public class Repository<T> : IRepository<T> where T : class
     /// </summary>
     /// <param name="id">Entity ID</param>
     /// <returns></returns>
-    public async Task<T?> GetByIdAsync(ulong id)
+    public virtual async Task<T?> GetByIdAsync(long id)
     {
         return await _context.Set<T>().FindAsync(id);
     }
@@ -29,7 +29,7 @@ public class Repository<T> : IRepository<T> where T : class
     /// Entityを全件取得します
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         return await _context.Set<T>().ToListAsync();
     }
