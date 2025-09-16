@@ -4,7 +4,7 @@ namespace Blog.Services;
 
 public static class SnowflakeService
 {
-    public static ulong GenerateId()
+    public static long GenerateId()
     {
         var settings = new Settings
         {
@@ -13,6 +13,6 @@ public static class SnowflakeService
         };
 
         var snowflake = new Snowflake(settings);
-        return (ulong)snowflake.NextID();
+        return snowflake.NextID();
     }
 }
