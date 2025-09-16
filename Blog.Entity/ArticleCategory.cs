@@ -8,14 +8,20 @@ public class ArticleCategory
     /// <summary>
     /// 記事ID
     /// </summary>
-    public required ulong ArticleId { get; set; }
+    public required long ArticleId { get; set; }
 
     /// <summary>
     /// カテゴリID
     /// </summary>
-    public required ulong CategoryId { get; set; }
+    public required long CategoryId { get; set; }
 
-    public ICollection<Article> Articles { get; set; } = new List<Article>();
+    /// <summary>
+    /// 記事
+    /// </summary>
+    public Article Article { get; set; }
 
-    public ICollection<Category> Categories { get; set; } = new List<Category>();
+    /// <summary>
+    /// カテゴリ
+    /// </summary>
+    public Category Category { get; set; }
 }
