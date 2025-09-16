@@ -8,17 +8,17 @@ public class Article
     /// <summary>
     /// 記事の一意な識別子
     /// </summary>
-    public required ulong Id { get; set; }
+    public required long Id { get; set; }
 
     /// <summary>
     /// 記事のタイトル
     /// </summary>
-    public required string Title { get; set; }
+    public string Title { get; set; }
 
     /// <summary>
     /// 記事の内容
     /// </summary>
-    public required string Content { get; set; }
+    public string Content { get; set; }
 
     /// <summary>
     /// サムネイル画像のURL
@@ -28,12 +28,12 @@ public class Article
     /// <summary>
     /// 公開状態を示すフラグ
     /// </summary>
-    public required bool IsPublished { get; set; }
+    public bool IsPublished { get; set; }
 
     /// <summary>
     /// 記事の作成日時
     /// </summary>
-    public required DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 
     /// <summary>
     /// 記事の更新日時
