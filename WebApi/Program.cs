@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using WebApi.Endpoints;
+using WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,7 @@ builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddAutoMapper(x => x.AddProfile<MappingProfile>());
 
 builder.Services.Configure<JsonOptions>(options =>
 {
@@ -51,6 +53,8 @@ app.MapDefaultEndpoints();
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.RegisterArticlesEndpoints();
 
