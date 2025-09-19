@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="SnowflakeGenerator" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Blog.Entity\Blog.Entity.csproj" />
     <ProjectReference Include="..\Blog.Repository\Blog.Repository.csproj" />
+    <ProjectReference Include="..\Blog.Shared\Blog.Shared.csproj" />
   </ItemGroup>
 
 </Project>
