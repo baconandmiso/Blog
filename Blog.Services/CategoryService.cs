@@ -53,12 +53,12 @@ public class CategoryService : ICategoryService
     /// 更新された<see cref="Category"/>オブジェクトを含むタスク。
     /// カテゴリーが見つからない場合は, 結果がnullになります。
     /// </returns>
-    public async Task<Category?> UpdateAsync(long id, string name)
+    public async Task<Category> UpdateAsync(long id, string name)
     {
         var category = await _categoryRepository.GetByIdAsync(id);
         if (category is null)
         {
-            return null;
+            throw new EntityNotFoundException($"Category with ID {id} not found.");
         }
 
         if (name is not null)
