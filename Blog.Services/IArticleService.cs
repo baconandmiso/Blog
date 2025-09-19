@@ -1,4 +1,5 @@
 ﻿using Blog.Entity;
+using Blog.Shared;
 
 namespace Blog.Services;
 
@@ -27,7 +28,7 @@ public interface IArticleService
     /// 更新された<see cref="Article"/>オブジェクトを含むタスク。
     /// 記事が見つからない場合は，タスクの結果がnullになります。
     /// </returns>
-    Task<Article?> UpdateAsync(long articleId, string title, string content, IEnumerable<long> categoryIds);
+    Task<Article> UpdateAsync(long articleId, UpdateArticleRequest request);
 
     /// <summary>
     /// 指定されたIDの記事を削除します。

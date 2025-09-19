@@ -23,7 +23,7 @@ public interface ICategoryService
     /// 更新された<see cref="Category"/>オブジェクトを含むタスク。
     /// カテゴリーが見つからない場合は, 結果がnullになります。
     /// </returns>
-    Task<Category?> UpdateAsync(long id, string name);
+    Task<Category> UpdateAsync(long id, string name);
 
     /// <summary>
     /// 指定されたIDのカテゴリーを削除します。
