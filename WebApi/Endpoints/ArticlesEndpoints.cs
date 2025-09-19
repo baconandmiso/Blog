@@ -1,5 +1,6 @@
 ﻿using Blog.Entity;
 using Blog.Services;
+using Blog.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -84,17 +85,11 @@ public static class ArticlesEndpoints
     /// <param name="id"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    private static async Task<Results<NoContent, NotFound>> ModifyArticle(IArticleService articleService, long id, CreateArticleRequest request)
+    private static async Task<Ok<ArticleResponse>> ModifyArticle(IArticleService articleService, long id, UpdateArticleRequest request)
     {
-        var article = await articleService.GetByIdAsync(id);
-        if (article == null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        await articleService.UpdateAsync(id, request.Title, request.Content, request.CategoryIds);
-        return TypedResults.NoContent();
+        var article =  await articleService.UpdateAsync(id, request);
+        var response = ToArticleResponse(article);
+        return TypedResults.Ok(response);
     }
 
     /// <summary>
@@ -200,15 +195,6 @@ public static class ArticlesEndpoints
 public class ThumbnailUpdateRequest
 {
     public string Image { get; set; }
-}
-
-public class CreateArticleRequest
-{
-    public string Title { get; set; }
-
-    public string Content { get; set; }
-
-    public IEnumerable<long> CategoryIds { get; set; }
 }
 
 public class CategoryResponse
