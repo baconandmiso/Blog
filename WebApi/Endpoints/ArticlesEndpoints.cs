@@ -158,15 +158,8 @@ public static class ArticlesEndpoints
     /// <param name="articleService"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    private static async Task<Results<NoContent, NotFound>> DeleteArticle(IArticleService articleService, long id)
+    private static async Task<NoContent> DeleteArticle(IArticleService articleService, long id)
     {
-        var article = await articleService.GetByIdAsync(id);
-        if (article == null)
-        {
-            return TypedResults.NotFound();
-        }
-
         await articleService.DeleteAsync(id);
         return TypedResults.NoContent();
     }
