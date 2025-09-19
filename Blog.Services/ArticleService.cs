@@ -1,5 +1,7 @@
-﻿using Blog.Entity;
+﻿using AutoMapper;
+using Blog.Entity;
 using Blog.Repository;
+using Blog.Shared;
 
 namespace Blog.Services;
 
@@ -12,15 +14,18 @@ public class ArticleService : IArticleService
 
     private readonly ApplicationDbContext _context;
 
+    private readonly IMapper _mapper;
+
     /// <summary>
     /// <see cref="ArticleService"/>の新しいインスタンスを生成します。
     /// </summary>
     /// <param name="articleRepository">記事データにアクセスするためのリポジトリ</param>
     /// <param name="context">データベースのセッションを表すコンテキスト</param>
-    public ArticleService(IArticleRepository articleRepository, ApplicationDbContext context)
+    public ArticleService(IArticleRepository articleRepository, ApplicationDbContext context, IMapper mapper)
     {
         _articleRepository = articleRepository;
         _context = context;
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -65,36 +70,29 @@ public class ArticleService : IArticleService
     /// 更新された<see cref="Article"/>オブジェクトを含むタスク。
     /// 記事が見つからない場合は，タスクの結果がnullになります。
     /// </returns>
-    public async Task<Article?> UpdateAsync(long articleId, string title, string content, IEnumerable<long> categoryIds)
+    public async Task<Article> UpdateAsync(long articleId, UpdateArticleRequest request)
     {
         var article = await _articleRepository.GetByIdAsync(articleId);
         if (article is null)
         {
-            return null;
+            throw new EntityNotFoundException();
         }
 
-        if (title is not null)
-        {
-            article.Title = title;
-        }
-        if (content is not null)
-        {
-            article.Content = content;
-        }
+        _mapper.Map(request, article);
 
-        // 3. カテゴリが指定されている場合は、既存の関連付けを一度クリアして再設定する
-        if (categoryIds is not null)
+        if (request.CategoryIds is not null)
         {
-            // カテゴリIDの存在チェック (Create時と同様)
-            // ... (省略) ...
-
-            // 既存のカテゴリ関連付けを削除
+            // 既存のカテゴリ関連付けをクリア
             article.ArticleCategories.Clear();
 
             // 新しいカテゴリ関連付けを追加
-            foreach (var categoryId in categoryIds)
+            foreach (var categoryId in request.CategoryIds)
             {
-                article.ArticleCategories.Add(new ArticleCategory { CategoryId = categoryId, ArticleId = articleId });
+                article.ArticleCategories.Add(new ArticleCategory
+                {
+                    CategoryId = categoryId,
+                    ArticleId = articleId
+                });
             }
         }
 
