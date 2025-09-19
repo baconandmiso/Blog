@@ -21,6 +21,7 @@
     <ProjectReference Include="..\Blog.Repository\Blog.Repository.csproj" />
     <ProjectReference Include="..\Blog.ServiceDefaults\Blog.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Blog.Services\Blog.Services.csproj" />
+    <ProjectReference Include="..\Blog.Shared\Blog.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
