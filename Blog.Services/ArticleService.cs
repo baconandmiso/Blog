@@ -111,10 +111,17 @@ public class ArticleService : IArticleService
     /// <returns>操作の完了を表す<see cref="Task"/>。</returns>
     public async Task DeleteAsync(long articleId)
     {
-        var article = new Article { Id = articleId };
+        try
+        {
+            var article = new Article { Id = articleId };
+            _articleRepository.Delete(article);
 
-        _articleRepository.Delete(article);
-        await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception)
+        {
+            throw new EntityNotFoundException();
+        }
     }
 
     /// <summary>
