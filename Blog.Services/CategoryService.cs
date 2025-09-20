@@ -1,5 +1,7 @@
-﻿using Blog.Entity;
+﻿using AutoMapper;
+using Blog.Entity;
 using Blog.Repository;
+using Blog.Shared;
 
 namespace Blog.Services;
 
@@ -12,15 +14,19 @@ public class CategoryService : ICategoryService
 
     private readonly ApplicationDbContext _context;
 
+    private readonly IMapper _mapper;
+
     /// <summary>
     /// <see cref="CategoryService"/>の新しいインスタンスを生成します。
     /// </summary>
     /// <param name="categoryRepository">カテゴリーデータにアクセスするためのリポジトリ</param>
     /// <param name="context">データベースのセッションを表すコンテキスト</param>
-    public CategoryService(ICategoryRepository categoryRepository, ApplicationDbContext context)
+    /// <param name="mapper"></param>
+    public CategoryService(ICategoryRepository categoryRepository, ApplicationDbContext context, IMapper mapper)
     {
         _categoryRepository = categoryRepository;
         _context = context;
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -28,15 +34,11 @@ public class CategoryService : ICategoryService
     /// </summary>
     /// <param name="name">新しいカテゴリーの名前。</param>
     /// <returns>作成された<see cref="Category"/>オブジェクトを含むタスク。</returns>
-    public async Task<Category> CreateAsync(string name)
+    public async Task<Category> CreateAsync(CreateCategoryRequest request)
     {
-        long categoryId = SnowflakeService.GenerateId();
+        var category = _mapper.Map<Category>(request);
 
-        var category = new Category
-        {
-            Id = categoryId,
-            Name = name
-        };
+        category.Id = SnowflakeService.GenerateId();
 
         await _categoryRepository.AddAsync(category);
         await _context.SaveChangesAsync();
@@ -53,7 +55,7 @@ public class CategoryService : ICategoryService
     /// 更新された<see cref="Category"/>オブジェクトを含むタスク。
     /// カテゴリーが見つからない場合は, 結果がnullになります。
     /// </returns>
-    public async Task<Category> UpdateAsync(long id, string name)
+    public async Task<Category> UpdateAsync(long id, UpdateCategoryRequest request)
     {
         var category = await _categoryRepository.GetByIdAsync(id);
         if (category is null)
@@ -61,10 +63,7 @@ public class CategoryService : ICategoryService
             throw new EntityNotFoundException($"Category with ID {id} not found.");
         }
 
-        if (name is not null)
-        {
-            category.Name = name;
-        }
+        _mapper.Map(request, category);
 
         _categoryRepository.Update(category);
         await _context.SaveChangesAsync();
@@ -79,7 +78,11 @@ public class CategoryService : ICategoryService
     /// <returns>操作の完了を表す<see cref="Task"/>。</returns>
     public async Task DeleteAsync(long id)
     {
-        var category = new Category { Id = id };
+        var category = await _categoryRepository.GetByIdAsync(id);
+        if (category is null)
+        {
+            throw new EntityNotFoundException($"Category with ID {id} not found.");
+        }
 
         _categoryRepository.Delete(category);
         await _context.SaveChangesAsync();
@@ -105,5 +108,25 @@ public class CategoryService : ICategoryService
     public async Task<Category?> GetByIdAsync(long id)
     {
         return await _categoryRepository.GetByIdAsync(id);
+    }
+
+    /// <summary>
+    /// 指定されたカテゴリーIDに関連付けられた記事を取得します。
+    /// </summary>
+    /// <param name="id">カテゴリID</param>
+    /// <returns></returns>
+    public async Task<IEnumerable<Article>> GetArticlesByCategory(long id)
+    {
+        return await _categoryRepository.GetArticlesByCategory(id);
+    }
+
+    /// <summary>
+    /// 指定されたカテゴリーIDに関連付けられた公開済み記事を取得します。
+    /// </summary>
+    /// <param name="id">カテゴリID</param>
+    /// <returns></returns>
+    public async Task<IEnumerable<Article>> GetPublishedArticlesByCategory(long id)
+    {
+        return await _categoryRepository.GetPublishedArticlesByCategory(id);
     }
 }
