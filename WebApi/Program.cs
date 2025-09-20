@@ -57,5 +57,6 @@ app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.RegisterArticlesEndpoints();
+app.RegisterCategoriesEndpoints();
 
 app.Run();
