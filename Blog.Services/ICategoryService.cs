@@ -1,4 +1,5 @@
 ﻿using Blog.Entity;
+using Blog.Shared;
 
 namespace Blog.Services;
 
@@ -12,18 +13,18 @@ public interface ICategoryService
     /// </summary>
     /// <param name="name">新しいカテゴリーの名前。</param>
     /// <returns>作成された<see cref="Category"/>オブジェクトを含むタスク。</returns>
-    Task<Category> CreateAsync(string name);
+    Task<Category> CreateAsync(CreateCategoryRequest request);
 
     /// <summary>
     /// 既存のカテゴリー情報を更新します。
     /// </summary>
     /// <param name="id">更新するカテゴリーのID。</param>
-    /// <param name="name">新しいカテゴリーの名前。</param>
+    /// <param name="request"></param>
     /// <returns>
     /// 更新された<see cref="Category"/>オブジェクトを含むタスク。
     /// カテゴリーが見つからない場合は, 結果がnullになります。
     /// </returns>
-    Task<Category> UpdateAsync(long id, string name);
+    Task<Category> UpdateAsync(long id, UpdateCategoryRequest request);
 
     /// <summary>
     /// 指定されたIDのカテゴリーを削除します。
@@ -47,4 +48,18 @@ public interface ICategoryService
     /// カテゴリーが見つからない場合は, 結果がnullになります。
     /// </returns>
     Task<Category?> GetByIdAsync(long id);
+
+    /// <summary>
+    /// 指定されたカテゴリーIDに関連付けられた記事を取得します。
+    /// </summary>
+    /// <param name="id">カテゴリID</param>
+    /// <returns></returns>
+    Task<IEnumerable<Article>> GetArticlesByCategory(long id);
+
+    /// <summary>
+    /// 指定されたカテゴリーIDに関連付けられた公開済み記事を取得します。
+    /// </summary>
+    /// <param name="id">カテゴリID</param>
+    /// <returns></returns>
+    Task<IEnumerable<Article>> GetPublishedArticlesByCategory(long id);
 }

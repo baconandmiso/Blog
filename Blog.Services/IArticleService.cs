@@ -15,7 +15,7 @@ public interface IArticleService
     /// <param name="content">本文</param>
     /// <param name="categoryIds">関連付けるカテゴリーID(s)</param>
     /// <returns>作成された<see cref="Article"/>オブジェクトを含むタスク</returns>
-    Task<Article> CreateAsync(string title, string content, IEnumerable<long> categoryIds);
+    Task<Article> CreateAsync(CreateArticleRequest request);
 
     /// <summary>
     /// 既存の記事を更新します。
@@ -33,9 +33,9 @@ public interface IArticleService
     /// <summary>
     /// 指定されたIDの記事を削除します。
     /// </summary>
-    /// <param name="articleId">削除する記事のID。</param>
+    /// <param name="id">削除する記事のID。</param>
     /// <returns>操作の完了を表す<see cref="Task"/>。</returns>
-    Task DeleteAsync(long articleId);
+    Task DeleteAsync(long id);
 
     /// <summary>
     /// すべての記事を取得します。
@@ -46,12 +46,12 @@ public interface IArticleService
     /// <summary>
     /// 指定されたIDの記事を取得します。
     /// </summary>
-    /// <param name="articleId">取得する記事のID。</param>
+    /// <param name="id">取得する記事のID。</param>
     /// <returns>
     /// 見つかった<see cref="Article"/>オブジェクトを含むタスク。
     /// 記事が見つからない場合は，タスクの結果がnullになります。
     /// </returns>
-    Task<Article?> GetByIdAsync(long articleId);
+    Task<Article?> GetByIdAsync(long id);
 
     /// <summary>
     /// すべての公開済み記事を取得します。
@@ -92,5 +92,5 @@ public interface IArticleService
     /// <returns>
     /// 更新が成功した場合はtrue，記事が見つからなかった場合はfalseを返すタスク。
     /// </returns>
-    Task<bool> UpdateThumbnailAsync(long articleId, string base64Image, string webRootPath);
+    Task UpdateThumbnailAsync(long articleId, string base64Image, string webRootPath);
 }
