@@ -2,6 +2,7 @@
 using Blog.Entity;
 using Blog.Repository;
 using Blog.Shared;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Services;
 
@@ -35,23 +36,39 @@ public class ArticleService : IArticleService
     /// <param name="content">本文</param>
     /// <param name="categoryIds">関連付けるカテゴリーID(s)</param>
     /// <returns>作成された<see cref="Article"/>オブジェクトを含むタスク</returns>
-    public async Task<Article> CreateAsync(string title, string content, IEnumerable<long> categoryIds)
+    public async Task<Article> CreateAsync(CreateArticleRequest request)
     {
-        long articleId = SnowflakeService.GenerateId();
-
-        var article = new Article
+        // 指定されたカテゴリーIDが存在するか確認
+        if (request.CategoryIds != null && request.CategoryIds.Any())
         {
-            Id = articleId,
-            Title = title,
-            Content = content,
-            IsPublished = false,
-            ArticleCategories = categoryIds.Select(cid => new ArticleCategory
+            var existingCategoryIds = await _context.Categories
+                .Where(c => request.CategoryIds.Contains(c.Id))
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var notFounds = request.CategoryIds.Except(existingCategoryIds).ToList();
+            if (notFounds.Count != 0)
             {
-                CategoryId = cid,
-                ArticleId = articleId
-            }).ToList(),
-            CreatedAt = DateTimeOffset.UtcNow
-        };
+                throw new EntityNotFoundException($"Categories not found: {string.Join(", ", notFounds)}");
+            }
+        }
+
+        // AutoMapperを使用して, DTOからエンティティへのマッピングを行う。
+        var article = _mapper.Map<Article>(request);
+
+        // AutoMapperでマッピングしきれない値をここで設定。
+        article.Id = SnowflakeService.GenerateId();
+        article.IsPublished = false;
+        article.CreatedAt = DateTimeOffset.UtcNow;
+
+        foreach (long categoryId in request.CategoryIds!)
+        {
+            article.ArticleCategories.Add(new ArticleCategory
+            {
+                CategoryId = categoryId,
+                ArticleId = article.Id
+            });
+        }
 
         await _articleRepository.AddAsync(article);
         await _context.SaveChangesAsync();
@@ -107,34 +124,31 @@ public class ArticleService : IArticleService
     /// <summary>
     /// 指定されたIDの記事を削除します。
     /// </summary>
-    /// <param name="articleId">削除する記事のID。</param>
+    /// <param name="id">削除する記事のID。</param>
     /// <returns>操作の完了を表す<see cref="Task"/>。</returns>
-    public async Task DeleteAsync(long articleId)
+    public async Task DeleteAsync(long id)
     {
-        try
-        {
-            var article = new Article { Id = articleId };
-            _articleRepository.Delete(article);
-
-            await _context.SaveChangesAsync();
-        }
-        catch (Exception)
+        var article = await _articleRepository.GetByIdAsync(id);
+        if (article is null)
         {
             throw new EntityNotFoundException();
         }
+
+        _articleRepository.Delete(article);
+        await _context.SaveChangesAsync();
     }
 
     /// <summary>
     /// 指定されたIDの記事を取得します。
     /// </summary>
-    /// <param name="articleId">取得する記事のID。</param>
+    /// <param name="id">取得する記事のID。</param>
     /// <returns>
     /// 見つかった<see cref="Article"/>オブジェクトを含むタスク。
     /// 記事が見つからない場合は，タスクの結果がnullになります。
     /// </returns>
-    public async Task<Article?> GetByIdAsync(long articleId)
+    public async Task<Article?> GetByIdAsync(long id)
     {
-        return await _articleRepository.GetByIdAsync(articleId);
+        return await _articleRepository.GetByIdAsync(id);
     }
 
     /// <summary>
@@ -180,13 +194,13 @@ public class ArticleService : IArticleService
     /// </summary>
     /// <param name="articleId">公開する記事のID。</param>
     /// <returns>公開状態に更新された<see cref="Article"/>オブジェクトを含むタスク。</returns>
-    /// <exception cref="InvalidOperationException">指定されたIDの記事が見つからない場合にスローされます。</exception>
+    /// <exception cref="EntryNotFoundException">指定されたIDの記事が見つからない場合にスローされます。</exception>
     public async Task<Article> PublishAsync(long articleId)
     {
         var article = await _articleRepository.GetByIdAsync(articleId);
         if (article is null)
         {
-            throw new InvalidOperationException("記事が見つかりません。");
+            throw new EntityNotFoundException();
         }
 
         article.IsPublished = true;
@@ -203,13 +217,13 @@ public class ArticleService : IArticleService
     /// </summary>
     /// <param name="articleId">非公開にする記事のID。</param>
     /// <returns>非公開状態に更新された<see cref="Article"/>オブジェクトを含むタスク。</returns>
-    /// <exception cref="InvalidOperationException">指定されたIDの記事が見つからない場合にスローされます。</exception>
+    /// <exception cref="EntityNotFoundException">指定されたIDの記事が見つからない場合にスローされます。</exception>
     public async Task<Article> UnpublishAsync(long articleId)
     {
         var article = await _articleRepository.GetByIdAsync(articleId);
         if (article is null)
         {
-            throw new InvalidOperationException("記事が見つかりません。");
+            throw new EntityNotFoundException();
         }
 
         article.IsPublished = false;
@@ -230,12 +244,12 @@ public class ArticleService : IArticleService
     /// <returns>
     /// 更新が成功した場合はtrue，記事が見つからなかった場合はfalseを返すタスク。
     /// </returns>
-    public async Task<bool> UpdateThumbnailAsync(long articleId, string base64Image, string webRootPath)
+    public async Task UpdateThumbnailAsync(long articleId, string base64Image, string webRootPath)
     {
         var article = await _articleRepository.GetByIdAsync(articleId);
         if (article is null)
         {
-            return false;
+            throw new EntityNotFoundException();
         }
 
         var parts = base64Image.Split(',');
@@ -256,7 +270,5 @@ public class ArticleService : IArticleService
 
         _articleRepository.Update(article);
         await _context.SaveChangesAsync();
-
-        return true;
     }
 }
