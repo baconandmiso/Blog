@@ -1,22 +1,22 @@
 ﻿namespace Blog.Entity;
 
 /// <summary>
-/// 記事のカテゴリーを表すエンティティ
+/// 記事のカテゴリを表すエンティティ。
 /// </summary>
 public class Category
 {
     /// <summary>
-    /// カテゴリーの一意な識別子
+    /// カテゴリの一意なIDを取得または設定します。
     /// </summary>
     public required long Id { get; set; }
 
     /// <summary>
-    /// カテゴリー名
+    /// カテゴリの名前を取得または設定します。
     /// </summary>
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     /// <summary>
-    /// カテゴリ - 記事の関連
+    /// カテゴリに関連付けられている記事のコレクションを取得します。
     /// </summary>
-    public ICollection<ArticleCategory> ArticleCategories { get; set; } = new List<ArticleCategory>();
+    public ICollection<ArticleCategory> ArticleCategories { get; private　set; } = new List<ArticleCategory>();
 }
