@@ -11,17 +11,18 @@ public class ApplicationDbContext : DbContext
     }
 
     /// <summary>
-    /// 記事
+    /// 記事のコレクションへのアクセスを提供します。データベースのArticlesテーブルに対応します。
     /// </summary>
     public DbSet<Article> Articles { get; set; }
 
     /// <summary>
-    /// カテゴリー
+    /// カテゴリのコレクションへのアクセスを提供します。データベースのCategoriesテーブルに対応します。
     /// </summary>
     public DbSet<Category> Categories { get; set; }
 
     /// <summary>
-    /// 記事 - カテゴリー の関連
+    /// 記事とカテゴリの関連付けコレクションへのアクセスを提供します。
+    /// データベースのArticleCategoriesテーブルに対応します。
     /// </summary>
     public DbSet<ArticleCategory> ArticleCategories { get; set; }
 
@@ -29,7 +30,19 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // ArticleCategory エンティティの複合主キーの設定
         modelBuilder.Entity<ArticleCategory>()
             .HasKey(ac => new { ac.ArticleId, ac.CategoryId });
+
+        // Article と Category の多対多の関係の設定
+        modelBuilder.Entity<ArticleCategory>()
+            .HasOne(ac => ac.Article)
+            .WithMany(a => a.ArticleCategories)
+            .HasForeignKey(ac => ac.ArticleId);
+
+        modelBuilder.Entity<ArticleCategory>()
+            .HasOne(ac => ac.Category)
+            .WithMany(c => c.ArticleCategories)
+            .HasForeignKey(ac => ac.CategoryId);
     }
 }
