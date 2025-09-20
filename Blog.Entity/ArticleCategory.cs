@@ -1,27 +1,29 @@
 ﻿namespace Blog.Entity;
 
 /// <summary>
-/// 記事とカテゴリーの関連を表すエンティティ
+/// 記事とカテゴリの多対多の関係を表すエンティティ。
 /// </summary>
 public class ArticleCategory
 {
     /// <summary>
-    /// 記事ID
+    /// 関連付けられる記事のID(外部キー)を取得または設定します。
     /// </summary>
     public required long ArticleId { get; set; }
 
     /// <summary>
-    /// カテゴリID
+    /// 関連付けられるカテゴリのID(外部キー)を取得または設定します。
     /// </summary>
     public required long CategoryId { get; set; }
 
     /// <summary>
-    /// 記事
+    /// 関連付けられる記事エンティティへのナビゲーションプロパティを取得または設定します。
+    /// このプロパティはオブジェクトの初期化時のみに設定できます。
     /// </summary>
-    public Article Article { get; set; }
+    public Article Article { get; init; } = null!;
 
     /// <summary>
-    /// カテゴリ
+    /// 関連付けられるカテゴリエンティティへのナビゲーションプロパティを取得または設定します。
+    /// このプロパティはオブジェクトの初期化時のみに設定できます。
     /// </summary>
-    public Category Category { get; set; }
+    public Category Category { get; init; } =  null!;
 }
