@@ -3,6 +3,7 @@ using Blog.Services;
 using Blog.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using MiniValidation;
 
 namespace WebApi.Endpoints;
 
@@ -28,13 +29,16 @@ public static class ArticlesEndpoints
     /// <param name="request"></param>
     /// <param name="articleService"></param>
     /// <returns></returns>
-    private static async Task<Created<ArticleResponse>> CreateArticle(CreateArticleRequest request, IArticleService articleService)
+    private static async Task<Results<Created<ArticleResponse>, ValidationProblem>> CreateArticle(CreateArticleRequest request, IArticleService articleService)
     {
-        var created = await articleService.CreateAsync(request.Title, request.Content, request.CategoryIds);
+        if (!MiniValidator.TryValidate(request, out var errors))
+        {
+            return TypedResults.ValidationProblem(errors);
+        }
 
-        var article = await articleService.GetByIdAsync(created.Id);
-        var response = ToArticleResponse(article!);
-        return TypedResults.Created($"/api/articles/{article!.Id}", response);
+        var created = await articleService.CreateAsync(request);
+        var response = ToArticleResponse(created);
+        return TypedResults.Created($"/api/articles/{response.Id}", response);
     }
 
     /// <summary>
@@ -99,19 +103,11 @@ public static class ArticlesEndpoints
     /// <param name="id"></param>
     /// <param name="file"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    private static async Task<Results<NoContent, NotFound>> ModifyThumbnail(IArticleService articleService, IWebHostEnvironment env, long id, ThumbnailUpdateRequest request)
+    private static async Task<NoContent> ModifyThumbnail(IArticleService articleService, IWebHostEnvironment env, long id, ThumbnailUpdateRequest request)
     {
-        var article = await articleService.GetByIdAsync(id);
-        if (article == null)
-        {
-            return TypedResults.NotFound();
-        }
-
         var webRootPath = env.WebRootPath;
-        var success = await articleService.UpdateThumbnailAsync(id, request.Image, webRootPath);
-
-        return success ? TypedResults.NoContent() : TypedResults.NotFound();
+        await articleService.UpdateThumbnailAsync(id, request.Image, webRootPath);
+        return TypedResults.NoContent();
     }
 
     /// <summary>
@@ -120,15 +116,9 @@ public static class ArticlesEndpoints
     /// <param name="articleService"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    private static async Task<Results<Ok<ArticleResponse>, NotFound>> PublishArticle(IArticleService articleService, long id)
+    private static async Task<Ok<ArticleResponse>> PublishArticle(IArticleService articleService, long id)
     {
         var article = await articleService.PublishAsync(id);
-        if (article == null)
-        {
-            return TypedResults.NotFound();
-        }
-
         var response = ToArticleResponse(article);
         return TypedResults.Ok(response);
     }
@@ -139,15 +129,9 @@ public static class ArticlesEndpoints
     /// <param name="articleService"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    private static async Task<Results<Ok<ArticleResponse>, NotFound>> UnpublishArticle(IArticleService articleService, long id)
+    private static async Task<Ok<ArticleResponse>> UnpublishArticle(IArticleService articleService, long id)
     {
         var article = await articleService.UnpublishAsync(id);
-        if (article == null)
-        {
-            return TypedResults.NotFound();
-        }
-
         var response = ToArticleResponse(article);
         return TypedResults.Ok(response);
     }
