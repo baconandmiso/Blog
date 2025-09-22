@@ -37,8 +37,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddAutoMapper(x => x.AddProfile<MappingProfile>());
 
 builder.Services.Configure<JsonOptions>(options =>
@@ -54,9 +56,12 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
+// TODO: 許可されたIPアドレスのみ管理画面, ログインAPIを通せるように設定する。(CFを経由してアクセスすることも考慮すること。)
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.RegisterArticlesEndpoints();
 app.RegisterCategoriesEndpoints();
+app.RegisterUserLoginEndpoints();
 
 app.Run();
