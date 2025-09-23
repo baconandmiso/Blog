@@ -55,6 +55,9 @@ public class ApplicationDbContext : DbContext
             .WithOne(p => p.User)
             .HasForeignKey<UserProfile>(p => p.UserId);
 
+        modelBuilder.Entity<UserProfile>()
+            .HasKey(p => p.UserId);
+
         var adminUserName = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
         var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
 
