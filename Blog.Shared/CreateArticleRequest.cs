@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations;
 
 namespace Blog.Shared;
 
@@ -21,6 +22,13 @@ public class CreateArticleRequest
     /// </summary>
     [Required(ErrorMessage = "本文は必須です。")]
     public string Content { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 記事が公開されているかどうかを示す値を取得または設定します。
+    /// このフィールドは必須です。
+    /// </summary>
+    [Required(ErrorMessage = "公開状態は必須です。")]
+    public bool? IsPublished { get; set; }
 
     /// <summary>
     /// 記事に関連付けるカテゴリIDのコレクションを取得または設定します。
