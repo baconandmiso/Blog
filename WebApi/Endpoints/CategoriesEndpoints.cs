@@ -52,9 +52,14 @@ public static class CategoriesEndpoints
     /// <param name="id">カテゴリID</param>
     /// <param name="categoryService"></param>
     /// <returns></returns>
-    private static async Task<Ok<CategoryResponse>> GetCategory(long id, ICategoryService categoryService)
+    private static async Task<Results<Ok<CategoryResponse>, NotFound>> GetCategory(long id, ICategoryService categoryService)
     {
         var category = await categoryService.GetByIdAsync(id);
+        if (category == null)
+        {
+            return TypedResults.NotFound();
+        }
+
         var response = ToCategoryResponse(category);
         return TypedResults.Ok(response);
     }
