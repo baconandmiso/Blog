@@ -58,17 +58,21 @@ public class ArticleService : IArticleService
 
         // AutoMapperでマッピングしきれない値をここで設定。
         article.Id = SnowflakeService.GenerateId();
-        article.IsPublished = false;
         article.CreatedAt = DateTimeOffset.UtcNow;
 
-        foreach (long categoryId in request.CategoryIds!)
+        if (article.IsPublished)
         {
-            article.ArticleCategories.Add(new ArticleCategory
-            {
-                CategoryId = categoryId,
-                ArticleId = article.Id
-            });
+            article.PublishedAt = DateTimeOffset.UtcNow;
         }
+
+        foreach (long categoryId in request.CategoryIds!)
+            {
+                article.ArticleCategories.Add(new ArticleCategory
+                {
+                    CategoryId = categoryId,
+                    ArticleId = article.Id
+                });
+            }
 
         await _articleRepository.AddAsync(article);
         await _context.SaveChangesAsync();
@@ -111,6 +115,15 @@ public class ArticleService : IArticleService
                     ArticleId = articleId
                 });
             }
+        }
+
+        if (article.IsPublished)
+        {
+            article.PublishedAt = DateTimeOffset.UtcNow;
+        }
+        else
+        {
+            article.PublishedAt = null;
         }
 
         article.UpdatedAt = DateTimeOffset.UtcNow;
