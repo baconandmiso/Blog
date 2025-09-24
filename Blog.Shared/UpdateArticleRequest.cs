@@ -27,4 +27,9 @@ public class UpdateArticleRequest
     /// 空のリストを指定した場合,すべてのカテゴリが記事から削除されます。
     /// </summary>
     public IEnumerable<long>? CategoryIds { get; set; }
+
+    /// <summary>
+    /// 記事が公開されているかどうかを示す値を取得または設定します。
+    /// </summary>
+    public bool? IsPublished { get; set; }
 }
