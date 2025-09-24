@@ -434,7 +434,7 @@ Migrations/
 /coverage
 
 # next.js
-/.next/
+/frontend/.next/
 /out/
 
 # production
@@ -460,4 +460,3 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 wwwroot/
-.next/
