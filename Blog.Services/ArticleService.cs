@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using Blog.Entity;
+﻿using Blog.Entity;
 using Blog.Repository;
 using Blog.Shared;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Services;
@@ -65,14 +65,16 @@ public class ArticleService : IArticleService
             article.PublishedAt = DateTimeOffset.UtcNow;
         }
 
-        foreach (long categoryId in request.CategoryIds!)
+        foreach (long categoryId in request.CategoryIds)
+        {
+            Console.WriteLine(categoryId);
+
+            article.ArticleCategories.Add(new ArticleCategory
             {
-                article.ArticleCategories.Add(new ArticleCategory
-                {
-                    CategoryId = categoryId,
-                    ArticleId = article.Id
-                });
-            }
+                CategoryId = categoryId,
+                ArticleId = article.Id
+             });
+        }
 
         await _articleRepository.AddAsync(article);
         await _context.SaveChangesAsync();

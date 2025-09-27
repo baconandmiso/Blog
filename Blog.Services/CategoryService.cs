@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using Blog.Entity;
+﻿using Blog.Entity;
 using Blog.Repository;
 using Blog.Shared;
+using MapsterMapper;
 
 namespace Blog.Services;
 

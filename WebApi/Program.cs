@@ -1,5 +1,7 @@
 using Blog.Repository;
 using Blog.Services;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -41,7 +43,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddAutoMapper(x => x.AddProfile<MappingProfile>());
+
+TypeAdapterConfig.GlobalSettings.Scan(typeof(MappingProfile).Assembly);
+
+builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
+
+builder.Services.AddSingleton<IMapper, ServiceMapper>();
 
 builder.Services.Configure<JsonOptions>(options =>
 {
