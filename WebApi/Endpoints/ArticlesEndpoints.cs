@@ -29,16 +29,23 @@ public static class ArticlesEndpoints
     /// <param name="request"></param>
     /// <param name="articleService"></param>
     /// <returns></returns>
-    private static async Task<Results<Created<ArticleResponse>, ValidationProblem>> CreateArticle(CreateArticleRequest request, IArticleService articleService)
+    private static async Task<Results<Created<ArticleResponse>, ValidationProblem, ProblemHttpResult>> CreateArticle(CreateArticleRequest request, IArticleService articleService)
     {
-        if (!MiniValidator.TryValidate(request, out var errors))
+        try
         {
-            return TypedResults.ValidationProblem(errors);
-        }
+            if (!MiniValidator.TryValidate(request, out var errors))
+            {
+                return TypedResults.ValidationProblem(errors);
+            }
 
-        var created = await articleService.CreateAsync(request);
-        var response = ToArticleResponse(created);
-        return TypedResults.Created($"/api/articles/{response.Id}", response);
+            var created = await articleService.CreateAsync(request);
+            var response = ToArticleResponse(created);
+            return TypedResults.Created($"/api/articles/{response.Id}", response);
+        }
+        catch (Exception ex)
+        {
+            return TypedResults.Problem(ex.Message);
+        }
     }
 
     /// <summary>
