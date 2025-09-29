@@ -69,23 +69,33 @@ public class ArticleService : IArticleService
             article.PublishedAt = DateTimeOffset.UtcNow;
         }
 
-        _logger.LogInformation("Creating article with {CategoryCount} categories", request.CategoryIds?.Count());
-
-        foreach (long categoryId in request.CategoryIds)
+        if (request.CategoryIds != null)
         {
-            _logger.LogInformation("Adding category {CategoryId} to article {ArticleId}", categoryId, article.Id);
-
-            article.ArticleCategories.Add(new ArticleCategory
+            foreach (long categoryId in request.CategoryIds)
             {
-                CategoryId = categoryId,
-                ArticleId = article.Id
-            });
+                article.ArticleCategories.Add(new ArticleCategory
+                {
+                    CategoryId = categoryId,
+                    ArticleId = article.Id
+                });
+            }
         }
 
         await _articleRepository.AddAsync(article);
         await _context.SaveChangesAsync();
 
-        return await _articleRepository.GetByIdAsync(article.Id);
+        var createdArticle = await _context.Articles
+            .Include(a => a.ArticleCategories)
+            .ThenInclude(ac => ac.Category)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == article.Id);
+
+        if (createdArticle is null)
+        {
+            throw new EntityNotFoundException($"Created article not found with Id: {article.Id}");
+        }
+
+        return createdArticle;
     }
 
     /// <summary>
