@@ -1,3 +1,4 @@
+ï»¿using Aspire.Hosting;
 using Microsoft.Extensions.Hosting;
 using Projects;
 
@@ -5,7 +6,6 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var api = builder.AddProject<WebApi>("webapi");
 
-// ƒpƒXƒ[ƒh—p‚Ìƒpƒ‰ƒ[ƒ^ƒŠƒ\[ƒX‚ğ’Ç‰Á
 var dbPassword = builder.AddParameter("dbpassword", "KinoemonLove");
 var postgresDataPath = Path.Combine(builder.AppHostDirectory, "data", "postgres");
 var postgres = builder.AddPostgres("postgres", port: 54194)
