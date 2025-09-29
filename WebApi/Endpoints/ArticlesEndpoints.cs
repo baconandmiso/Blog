@@ -1,6 +1,7 @@
 ﻿using Blog.Entity;
 using Blog.Services;
 using Blog.Shared;
+using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MiniValidation;
@@ -29,23 +30,17 @@ public static class ArticlesEndpoints
     /// <param name="request"></param>
     /// <param name="articleService"></param>
     /// <returns></returns>
-    private static async Task<Results<Created<ArticleResponse>, ValidationProblem, ProblemHttpResult>> CreateArticle(CreateArticleRequest request, IArticleService articleService)
+    private static async Task<Results<Created<ArticleResponse>, ValidationProblem>> CreateArticle(CreateArticleRequest request, IArticleService articleService)
     {
-        try
+        if (!MiniValidator.TryValidate(request, out var errors))
         {
-            if (!MiniValidator.TryValidate(request, out var errors))
-            {
-                return TypedResults.ValidationProblem(errors);
-            }
+            return TypedResults.ValidationProblem(errors);
+        }
 
-            var created = await articleService.CreateAsync(request);
-            var response = ToArticleResponse(created);
-            return TypedResults.Created($"/api/articles/{response.Id}", response);
-        }
-        catch (Exception ex)
-        {
-            return TypedResults.Problem(ex.Message);
-        }
+        Article article = await articleService.CreateAsync(request);
+        ArticleResponse response = article.Adapt<ArticleResponse>();
+
+        return TypedResults.Created($"/api/articles/{response.Id}", response);
     }
 
     /// <summary>
@@ -113,7 +108,7 @@ public static class ArticlesEndpoints
     private static async Task<NoContent> ModifyThumbnail(IArticleService articleService, IWebHostEnvironment env, long id, ThumbnailUpdateRequest request)
     {
         var webRootPath = env.WebRootPath;
-        await articleService.UpdateThumbnailAsync(id, request.Image, webRootPath);
+        await articleService.UpdateThumbnailAsync(id, request.Image!, webRootPath);
         return TypedResults.NoContent();
     }
 
@@ -178,33 +173,5 @@ public static class ArticlesEndpoints
 
 public class ThumbnailUpdateRequest
 {
-    public string Image { get; set; }
-}
-
-public class CategoryResponse
-{
-    public long Id { get; set; }
-
-    public string Name { get; set; }
-}
-
-public class ArticleResponse
-{
-    public long Id { get; set; }
-
-    public string Title { get; set; }
-
-    public string Content { get; set; }
-
-    public ICollection<CategoryResponse> Categories { get; set; } = new List<CategoryResponse>();
-
-    public string? ThumbnailUrl { get; set; }
-
-    public bool IsPublished { get; set; }
-
-    public DateTimeOffset CreatedAt { get; set; }
-
-    public DateTimeOffset? UpdatedAt { get; set; }
-
-    public DateTimeOffset? PublishedAt { get; set; }
+    public string? Image { get; set; }
 }
