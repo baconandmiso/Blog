@@ -10,7 +10,7 @@ public class MappingProfile : IRegister
     {
         // CreateArticleRequest から Article へのマッピング
         config.NewConfig<CreateArticleRequest, Article>()
-            .IgnoreNullValues(true);
+            .Ignore(dest => dest.ArticleCategories);
 
         // CreateCategoryRequest から Category へのマッピング
         config.NewConfig<CreateCategoryRequest, Category>()
