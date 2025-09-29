@@ -3,6 +3,7 @@ using Blog.Repository;
 using Blog.Shared;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Blog.Services;
 
@@ -17,16 +18,19 @@ public class ArticleService : IArticleService
 
     private readonly IMapper _mapper;
 
+    private readonly ILogger<ArticleService> _logger;
+
     /// <summary>
     /// <see cref="ArticleService"/>の新しいインスタンスを生成します。
     /// </summary>
     /// <param name="articleRepository">記事データにアクセスするためのリポジトリ</param>
     /// <param name="context">データベースのセッションを表すコンテキスト</param>
-    public ArticleService(IArticleRepository articleRepository, ApplicationDbContext context, IMapper mapper)
+    public ArticleService(IArticleRepository articleRepository, ApplicationDbContext context, IMapper mapper, ILogger<ArticleService> logger)
     {
         _articleRepository = articleRepository;
         _context = context;
         _mapper = mapper;
+        _logger = logger;
     }
 
     /// <summary>
@@ -65,21 +69,23 @@ public class ArticleService : IArticleService
             article.PublishedAt = DateTimeOffset.UtcNow;
         }
 
+        _logger.LogInformation("Creating article with {CategoryCount} categories", request.CategoryIds?.Count());
+
         foreach (long categoryId in request.CategoryIds)
         {
-            Console.WriteLine(categoryId);
+            _logger.LogInformation("Adding category {CategoryId} to article {ArticleId}", categoryId, article.Id);
 
             article.ArticleCategories.Add(new ArticleCategory
             {
                 CategoryId = categoryId,
                 ArticleId = article.Id
-             });
+            });
         }
 
         await _articleRepository.AddAsync(article);
         await _context.SaveChangesAsync();
 
-        return article;
+        return await _articleRepository.GetByIdAsync(article.Id);
     }
 
     /// <summary>
