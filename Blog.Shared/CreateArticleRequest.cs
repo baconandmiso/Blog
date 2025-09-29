@@ -32,7 +32,7 @@ public class CreateArticleRequest
 
     /// <summary>
     /// 記事に関連付けるカテゴリIDのコレクションを取得または設定します。
-    /// このフィールドはオプションです。指定しない場合は空のリストとして扱われます、
+    /// このフィールドはオプションです。指定しない場合は空のリストとして扱われます。
     /// </summary>
-    public IEnumerable<long> CategoryIds { get; set; } = new List<long>();
+    public IList<long>? CategoryIds { get; set; } = new List<long>();
 }
