@@ -43,16 +43,18 @@ public class ArticleService : IArticleService
     public async Task<Article> CreateAsync(CreateArticleRequest request)
     {
         // 指定されたカテゴリーIDが存在するか確認
+        var categories = new List<Category>();
         if (request.CategoryIds != null && request.CategoryIds.Any())
         {
-            var existingCategoryIds = await _context.Categories
+            categories = await _context.Categories
                 .Where(c => request.CategoryIds.Contains(c.Id))
-                .Select(c => c.Id)
                 .ToListAsync();
 
-            var notFounds = request.CategoryIds.Except(existingCategoryIds).ToList();
-            if (notFounds.Count != 0)
+            // 存在しないカテゴリーIDがある場合は例外をスロー
+            if (categories.Count != request.CategoryIds.Count())
             {
+                var foundIds = categories.Select(c => c.Id);
+                var notFounds = request.CategoryIds.Except(foundIds).ToList();
                 throw new EntityNotFoundException($"Categories not found: {string.Join(", ", notFounds)}");
             }
         }
@@ -84,18 +86,7 @@ public class ArticleService : IArticleService
         await _articleRepository.AddAsync(article);
         await _context.SaveChangesAsync();
 
-        var createdArticle = await _context.Articles
-            .Include(a => a.ArticleCategories)
-            .ThenInclude(ac => ac.Category)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Id == article.Id);
-
-        if (createdArticle is null)
-        {
-            throw new EntityNotFoundException($"Created article not found with Id: {article.Id}");
-        }
-
-        return createdArticle;
+        return article;
     }
 
     /// <summary>
