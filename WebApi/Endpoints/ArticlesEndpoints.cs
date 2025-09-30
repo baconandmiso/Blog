@@ -55,9 +55,8 @@ public static class ArticlesEndpoints
             throw new NotImplementedException();
         }
 
-        var articles = await articleService.GetAllPublishedAsync();
-
-        var response = articles.Select(ToArticleResponse);
+        IEnumerable<Article> articles = await articleService.GetAllPublishedAsync();
+        IEnumerable<ArticleResponse> response = articles.Adapt<IEnumerable<ArticleResponse>>();
         return TypedResults.Ok(response);
     }
 
@@ -69,7 +68,7 @@ public static class ArticlesEndpoints
     /// <returns></returns>
     private static async Task<Results<Ok<ArticleResponse>, NotFound>> GetArticle(IArticleService articleService, long id)
     {
-        var article = await articleService.GetByIdAsync(id);
+        Article? article = await articleService.GetByIdAsync(id);
         if (article == null)
         {
             return TypedResults.NotFound();
@@ -80,7 +79,7 @@ public static class ArticlesEndpoints
             throw new NotImplementedException();
         }
 
-        var response = ToArticleResponse(article);
+        ArticleResponse response = article.Adapt<ArticleResponse>();
         return TypedResults.Ok(response);
     }
 
@@ -93,8 +92,8 @@ public static class ArticlesEndpoints
     /// <returns></returns>
     private static async Task<Ok<ArticleResponse>> ModifyArticle(IArticleService articleService, long id, UpdateArticleRequest request)
     {
-        var article =  await articleService.UpdateAsync(id, request);
-        var response = ToArticleResponse(article);
+        Article article =  await articleService.UpdateAsync(id, request);
+        ArticleResponse response = article.Adapt<ArticleResponse>();
         return TypedResults.Ok(response);
     }
 
@@ -105,7 +104,7 @@ public static class ArticlesEndpoints
     /// <param name="id"></param>
     /// <param name="file"></param>
     /// <returns></returns>
-    private static async Task<NoContent> ModifyThumbnail(IArticleService articleService, IWebHostEnvironment env, long id, ThumbnailUpdateRequest request)
+    private static async Task<NoContent> ModifyThumbnail(IArticleService articleService, IWebHostEnvironment env, long id, ArticleThumbnailUpdateRequest request)
     {
         var webRootPath = env.WebRootPath;
         await articleService.UpdateThumbnailAsync(id, request.Image!, webRootPath);
@@ -120,8 +119,8 @@ public static class ArticlesEndpoints
     /// <returns></returns>
     private static async Task<Ok<ArticleResponse>> PublishArticle(IArticleService articleService, long id)
     {
-        var article = await articleService.PublishAsync(id);
-        var response = ToArticleResponse(article);
+        Article article = await articleService.PublishAsync(id);
+        ArticleResponse response = article.Adapt<ArticleResponse>();
         return TypedResults.Ok(response);
     }
 
@@ -133,8 +132,8 @@ public static class ArticlesEndpoints
     /// <returns></returns>
     private static async Task<Ok<ArticleResponse>> UnpublishArticle(IArticleService articleService, long id)
     {
-        var article = await articleService.UnpublishAsync(id);
-        var response = ToArticleResponse(article);
+        Article article = await articleService.UnpublishAsync(id);
+        ArticleResponse response = article.Adapt<ArticleResponse>();
         return TypedResults.Ok(response);
     }
 
@@ -149,29 +148,4 @@ public static class ArticlesEndpoints
         await articleService.DeleteAsync(id);
         return TypedResults.NoContent();
     }
-
-    private static ArticleResponse ToArticleResponse(Article article)
-    {
-        return new ArticleResponse
-        {
-            Id = article.Id,
-            Title = article.Title,
-            Content = article.Content,
-            Categories = article.ArticleCategories.Select(ac => new CategoryResponse
-            {
-                Id = ac.Category.Id,
-                Name = ac.Category.Name
-            }).ToList(),
-            ThumbnailUrl = article.ThumbnailUrl,
-            IsPublished = article.IsPublished,
-            CreatedAt = article.CreatedAt,
-            UpdatedAt = article.UpdatedAt,
-            PublishedAt = article.PublishedAt
-        };
-    }
-}
-
-public class ThumbnailUpdateRequest
-{
-    public string? Image { get; set; }
 }
