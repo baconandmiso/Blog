@@ -1,6 +1,8 @@
 ﻿using Blog.Entity;
+using Blog.Repository;
 using Blog.Services;
 using Blog.Shared;
+using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,9 +30,8 @@ public static class CategoriesEndpoints
     /// <returns></returns>
     private static async Task<Created<CategoryResponse>> CreateCategory(ICategoryService categoryService, CreateCategoryRequest request)
     {
-        var created = await categoryService.CreateAsync(request);
-
-        var response = ToCategoryResponse(created);
+        Category category = await categoryService.CreateAsync(request);
+        CategoryResponse response = category.Adapt<CategoryResponse>();
         return TypedResults.Created($"/api/categories/{response.Id}", response);
     }
 
@@ -41,8 +42,8 @@ public static class CategoriesEndpoints
     /// <returns></returns>
     private static async Task<Ok<IEnumerable<CategoryResponse>>> GetCategories(ICategoryService categoryService)
     {
-        var categories = await categoryService.GetAllAsync();
-        var response = categories.Select(ToCategoryResponse);
+        IEnumerable<Category> categories = await categoryService.GetAllAsync();
+        IEnumerable<CategoryResponse> response = categories.Adapt<IEnumerable<CategoryResponse>>();
         return TypedResults.Ok(response);
     }
 
@@ -54,13 +55,13 @@ public static class CategoriesEndpoints
     /// <returns></returns>
     private static async Task<Results<Ok<CategoryResponse>, NotFound>> GetCategory(long id, ICategoryService categoryService)
     {
-        var category = await categoryService.GetByIdAsync(id);
+        Category? category = await categoryService.GetByIdAsync(id);
         if (category == null)
         {
             return TypedResults.NotFound();
         }
 
-        var response = ToCategoryResponse(category);
+        CategoryResponse response = category.Adapt<CategoryResponse>();
         return TypedResults.Ok(response);
     }
 
@@ -73,8 +74,8 @@ public static class CategoriesEndpoints
     /// <returns></returns>
     private static async Task<Ok<CategoryResponse>> ModifyCategory(long id, UpdateCategoryRequest request, ICategoryService categoryService)
     {
-        var updated = await categoryService.UpdateAsync(id, request);
-        var response = ToCategoryResponse(updated);
+        Category category = await categoryService.UpdateAsync(id, request);
+        CategoryResponse response = category.Adapt<CategoryResponse>();
         return TypedResults.Ok(response);
     }
 
@@ -85,15 +86,16 @@ public static class CategoriesEndpoints
     /// <param name="id">カテゴリID</param>
     /// <param name="published"></param>
     /// <returns></returns>
-    private static async Task<Ok<IEnumerable<Article>>> GetArticlesByCategoryId(ICategoryService categoryService, long id, [FromQuery] bool published = true)
+    private static async Task<Ok<IEnumerable<ArticleResponse>>> GetArticlesByCategoryId(ICategoryService categoryService, long id, [FromQuery] bool published = true)
     {
         if (!published) // 非公開記事も取得, この場合アクセストークンを必要とする。
         {
             throw new NotImplementedException();
         }
 
-        var articles = await categoryService.GetPublishedArticlesByCategory(id);
-        return TypedResults.Ok(articles);
+        IEnumerable<Article> articles = await categoryService.GetPublishedArticlesByCategory(id);
+        IEnumerable<ArticleResponse> response = articles.Adapt<IEnumerable<ArticleResponse>>();
+        return TypedResults.Ok(response);
     }
 
     /// <summary>
@@ -106,14 +108,5 @@ public static class CategoriesEndpoints
     {
         await categoryService.DeleteAsync(id);
         return TypedResults.NoContent();
-    }
-
-    private static CategoryResponse ToCategoryResponse(Category category)
-    {
-        return new CategoryResponse
-        {
-            Id = category.Id,
-            Name = category.Name
-        };
     }
 }
