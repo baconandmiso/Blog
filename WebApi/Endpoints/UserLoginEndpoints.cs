@@ -13,8 +13,8 @@ public static class UserLoginEndpoints
 
     private static async Task<Results<Ok<LoginResponse>, UnauthorizedHttpResult>> Login(LoginRequest request, IAuthService authService)
     {
-        var response = await authService.LoginAsync(request);
-        return TypedResults.Ok(new LoginResponse { Token = response.Token });
+        string token = await authService.LoginAsync(request);
+        return TypedResults.Ok(new LoginResponse { Token = token });
     }
 }
 
