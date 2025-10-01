@@ -4,5 +4,5 @@ namespace Blog.Services;
 
 public interface IAuthService
 {
-    Task<LoginResponse> LoginAsync(LoginRequest request);
+    Task<string> LoginAsync(LoginRequest request);
 }
