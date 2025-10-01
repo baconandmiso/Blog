@@ -8,20 +8,13 @@ public static class UserLoginEndpoints
 {
     public static void RegisterUserLoginEndpoints(this WebApplication app)
     {
-        app.MapPost("/api/login", Login);
+        app.MapPost("/api/auth/login", Login);
     }
 
-    private static async Task<Results<Ok<LoginResponse>, UnauthorizedHttpResult>> Login(LoginRequest request, IUserService userService)
+    private static async Task<Results<Ok<LoginResponse>, UnauthorizedHttpResult>> Login(LoginRequest request, IAuthService authService)
     {
-        var user = await userService.ValidateUserAsync(request);
-        if (user is null)
-        {
-            return TypedResults.Unauthorized();
-        }
-
-        // TODO: Generate JWT token
-        string token = "";
-        return TypedResults.Ok(new LoginResponse { Token = token });
+        var response = await authService.LoginAsync(request);
+        return TypedResults.Ok(new LoginResponse { Token = response.Token });
     }
 }
 
