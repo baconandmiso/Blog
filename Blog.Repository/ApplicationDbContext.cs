@@ -29,7 +29,7 @@ public class ApplicationDbContext : DbContext
     /// <summary>
     /// ユーザーのコレクションへのアクセスを提供します。データベースのUsersテーブルに対応します。
     /// </summary>
-    public DbSet<User> Users { get; set; }
+    public DbSet<AdminUser> AdminUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -49,36 +49,5 @@ public class ApplicationDbContext : DbContext
             .HasOne(ac => ac.Category)
             .WithMany(c => c.ArticleCategories)
             .HasForeignKey(ac => ac.CategoryId);
-
-        modelBuilder.Entity<User>()
-            .HasOne(u => u.Profile)
-            .WithOne(p => p.User)
-            .HasForeignKey<UserProfile>(p => p.UserId);
-
-        modelBuilder.Entity<UserProfile>()
-            .HasKey(p => p.UserId);
-
-        var adminUserName = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
-        var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
-
-        // 環境変数が設定されていない場合は、シーディングを行わずに終了
-        if (string.IsNullOrEmpty(adminUserName) || string.IsNullOrEmpty(adminPassword))
-        {
-            // ログを出力しておくと、変数が設定されていない場合に気づきやすいです
-            Console.WriteLine("初期管理者の環境変数が設定されていません。シーディングをスキップします。");
-            return;
-        }
-
-        // BCryptを使用してパスワードをハッシュ化
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword);
-
-        // HasDataメソッドを使用して初期ユーザーを登録
-        modelBuilder.Entity<User>().HasData(
-            new User
-            {
-                    Id = 1, // 主キーは明示的に指定する必要があります
-                    Name = adminUserName,
-                    PasswordHash = passwordHash
-            });
     }
 }
