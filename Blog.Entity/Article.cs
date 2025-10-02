@@ -3,13 +3,8 @@
 /// <summary>
 ///　記事を表すエンティティ。
 /// </summary>
-public class Article
+public class Article : SnowflakeEntity
 {
-    /// <summary>
-    /// 記事の一意なIDを取得または設定します。
-    /// </summary>
-    public required long Id { get; set; }
-
     /// <summary>
     /// 記事のタイトルを取得または設定します。
     /// </summary>
@@ -29,11 +24,6 @@ public class Article
     /// 記事が公開されているかどうかを示す値を取得または設定します。
     /// </summary>
     public bool IsPublished { get; set; }
-
-    /// <summary>
-    /// 記事の作成日時を取得または設定します。
-    /// </summary>
-    public DateTimeOffset CreatedAt { get; set; }
 
     /// <summary>
     /// 記事の最終更新日を取得または設定します。
