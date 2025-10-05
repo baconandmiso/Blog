@@ -63,9 +63,6 @@ public class ArticleService : IArticleService
         var article = _mapper.Map<Article>(request);
 
         // AutoMapperでマッピングしきれない値をここで設定。
-        article.Id = SnowflakeService.GenerateId();
-        article.CreatedAt = DateTimeOffset.UtcNow;
-
         if (article.IsPublished)
         {
             article.PublishedAt = DateTimeOffset.UtcNow;
