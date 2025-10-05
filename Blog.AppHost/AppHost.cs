@@ -4,18 +4,16 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var api = builder.AddProject<WebApi>("webapi");
-
-var dbPassword = builder.AddParameter("dbpassword", "KinoemonLove");
-var postgresDataPath = Path.Combine(builder.AppHostDirectory, "data", "postgres");
 var postgres = builder.AddPostgres("postgres", port: 54194)
     .WithEnvironment("POSTGRES_DB", "blogdb")
     .WithDataVolume("VolumeMount.postgres.data")
-    .WithPassword(dbPassword)
     .WithPgAdmin(configureContainer: x => x.WithHostPort(54195))
-    .AddDatabase("blog", "blogdb");
+    .AddDatabase("PostgreSqlConnection", "blogdb");
 
-var frontend = builder.AddNpmApp("frontend", "../frontend", "dev")
+var api = builder.AddProject<WebApi>("WebApi")
+        .WithReference(postgres);
+
+var frontend = builder.AddNpmApp("Frontend", "../frontend", "dev")
     .WithHttpEndpoint(port: 8006, env: "PORT")
     .WithExternalHttpEndpoints()
     .WithReference(api)
