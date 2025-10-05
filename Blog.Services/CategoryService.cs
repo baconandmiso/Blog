@@ -38,8 +38,6 @@ public class CategoryService : ICategoryService
     {
         var category = _mapper.Map<Category>(request);
 
-        category.Id = SnowflakeService.GenerateId();
-
         await _categoryRepository.AddAsync(category);
         await _context.SaveChangesAsync();
 
