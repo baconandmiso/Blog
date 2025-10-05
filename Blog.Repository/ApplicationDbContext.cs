@@ -31,6 +31,11 @@ public class ApplicationDbContext : DbContext
     /// </summary>
     public DbSet<AdminUser> AdminUsers { get; set; }
 
+    /// <summary>
+    /// ユーザープロファイルのコレクションへのアクセスを提供します。データベースのUserProfilesテーブルに対応します。
+    /// </summary>
+    public DbSet<UserProfile> UserProfiles { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
