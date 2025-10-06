@@ -25,9 +25,18 @@ public class IpWhitelistMiddleware
             await _next(context);
             return;
         }
+        else
+        {
+            if (context.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+            {
+                // GETリクエストはIP制限の対象外とする
+                await _next(context);
+                return;
+            }
+        }
 
         // リクエスト元のIPアドレスを取得する
-        var remoteIp = context.Connection.RemoteIpAddress?.ToString();
+            var remoteIp = context.Connection.RemoteIpAddress?.ToString();
 
         _logger.LogInformation("Request from Remote IP address: {RemoteIp}", remoteIp);
 

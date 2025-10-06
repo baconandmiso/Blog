@@ -30,7 +30,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseMySQL(builder.Configuration.GetConnectionString("MySqlConnection") ?? "");
             break;
         case "PostgreSQL":
-            options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection"));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("blogdb"));
             break;
         case "SQLite":
             options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection"));
@@ -53,18 +53,17 @@ builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            // トークンの検証ルールを設定
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     });
+
+builder.Services.AddAuthorization();
 
 TypeAdapterConfig.GlobalSettings.Scan(typeof(MappingProfile).Assembly);
 
@@ -78,6 +77,10 @@ builder.Services.Configure<JsonOptions>(options =>
 });
 
 var app = builder.Build();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.MapDefaultEndpoints();
 
