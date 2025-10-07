@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Blog.Entity;
 using Blog.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +31,7 @@ public class Worker : BackgroundService
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             await MigrationAsync(dbContext, stoppingToken);
+            await AdminUserSeedAsync(dbContext, stoppingToken);
         }
         catch (Exception ex)
         {
@@ -46,6 +48,25 @@ public class Worker : BackgroundService
         await strategy.ExecuteAsync(async () =>
         {
             await dbContext.Database.MigrateAsync(cancellationToken);
+        });
+    }
+
+    private static async Task AdminUserSeedAsync(ApplicationDbContext dbContext, CancellationToken cancellationToken)
+    {
+        var adminUser = new AdminUser
+        {
+            Username = "admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin")
+        };
+
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            // Seed the database
+            await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            await dbContext.AdminUsers.AddAsync(adminUser, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
         });
     }
 }
