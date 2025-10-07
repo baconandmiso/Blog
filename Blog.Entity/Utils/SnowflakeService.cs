@@ -25,6 +25,9 @@ public static class SnowflakeService
         };
 
         var snowflake = new Snowflake(settings);
-        return Convert.ToDateTime(snowflake.DecodeID(id).Timestamp);
+        var timetamp = snowflake.DecodeID(id).Timestamp;
+
+        var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(timetamp);
+        return dateTimeOffset;
     }
 }
