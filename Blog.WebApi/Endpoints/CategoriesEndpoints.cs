@@ -3,7 +3,6 @@ using Blog.Services;
 using Blog.Shared;
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Endpoints;
 
@@ -13,12 +12,11 @@ public static class CategoriesEndpoints
     {
         var categories = app.MapGroup("/api/categories");
 
-        categories.MapPost("/", CreateCategory);
+        categories.MapPost("/", CreateCategory).RequireAuthorization();
         categories.MapGet("/", GetCategories);
         categories.MapGet("/{id:long}", GetCategory);
-        categories.MapPatch("/{id:long}", ModifyCategory);
-        categories.MapGet("/{id:long}/articles", GetArticlesByCategoryId);
-        categories.MapDelete("/{id:long}", DeleteCategory);
+        categories.MapPatch("/{id:long}", ModifyCategory).RequireAuthorization();
+        categories.MapDelete("/{id:long}", DeleteCategory).RequireAuthorization();
     }
 
     /// <summary>
@@ -75,25 +73,6 @@ public static class CategoriesEndpoints
     {
         Category category = await categoryService.UpdateAsync(id, request);
         CategoryResponse response = category.Adapt<CategoryResponse>();
-        return TypedResults.Ok(response);
-    }
-
-    /// <summary>
-    /// 指定したカテゴリIDに紐づく記事をすべて取得します
-    /// </summary>
-    /// <param name="articleService"></param>
-    /// <param name="id">カテゴリID</param>
-    /// <param name="published"></param>
-    /// <returns></returns>
-    private static async Task<Ok<IEnumerable<ArticleResponse>>> GetArticlesByCategoryId(ICategoryService categoryService, long id, [FromQuery] bool published = true)
-    {
-        if (!published) // 非公開記事も取得, この場合アクセストークンを必要とする。
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerable<Article> articles = await categoryService.GetPublishedArticlesByCategory(id);
-        IEnumerable<ArticleResponse> response = articles.Adapt<IEnumerable<ArticleResponse>>();
         return TypedResults.Ok(response);
     }
 
