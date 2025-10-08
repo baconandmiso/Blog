@@ -53,6 +53,12 @@ public class Worker : BackgroundService
 
     private static async Task AdminUserSeedAsync(ApplicationDbContext dbContext, CancellationToken cancellationToken)
     {
+        var userCount = await dbContext.AdminUsers.CountAsync(cancellationToken);
+        if (userCount > 0)
+        {
+            return;
+        }
+
         var adminUser = new AdminUser
         {
             Username = "admin",
