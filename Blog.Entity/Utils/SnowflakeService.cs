@@ -2,7 +2,7 @@
 
 namespace Blog.Entity.Utils;
 
-public static class SnowflakeService
+internal static class SnowflakeService
 {
     public static long GenerateId()
     {
