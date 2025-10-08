@@ -1,8 +1,5 @@
-using System.Net;
-using Blog.Entity;
 using Blog.Repository;
 using Blog.Shared;
-using Org.BouncyCastle.OpenSsl;
 
 namespace Blog.Services;
 
@@ -36,15 +33,7 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("ユーザー名またはパスワードが正しくありません。");
         }
 
-        // 3. TOTPが有効かチェック
-        if (string.IsNullOrEmpty(user.TotpSecretKey))
-        {
-            // TOTPなし -> すぐにトークンを発行
-            var token = _jwtProvider.GenerateToken(user);
-            return token;
-        }
-
-        return "";
+        var token = _jwtProvider.GenerateToken(user);
+        return token;
     }
-
 }
