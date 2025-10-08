@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Blog.Repository": {
+      "commandName": "Project"
+    }
+  }
+}
