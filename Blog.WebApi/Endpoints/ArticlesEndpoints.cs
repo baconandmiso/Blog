@@ -1,4 +1,5 @@
-﻿using Blog.Entity;
+﻿using System.Security.Claims;
+using Blog.Entity;
 using Blog.Services;
 using Blog.Shared;
 using Mapster;
@@ -14,14 +15,14 @@ public static class ArticlesEndpoints
     {
         var articles = app.MapGroup("/api/articles");
 
-        articles.MapPost("/", CreateArticle);
+        articles.MapPost("/", CreateArticle).RequireAuthorization();
         articles.MapGet("/", GetArticles);
         articles.MapGet("/{id:long}", GetArticle);
-        articles.MapPatch("/{id:long}", ModifyArticle);
-        articles.MapPatch("/{id:long}/thumbnail", ModifyThumbnail);
-        articles.MapPost("/{id:long}/publish", PublishArticle);
-        articles.MapPost("/{id:long}/unpublish", UnpublishArticle);
-        articles.MapDelete("/{id:long}", DeleteArticle);
+        articles.MapPatch("/{id:long}", ModifyArticle).RequireAuthorization();
+        articles.MapPatch("/{id:long}/thumbnail", ModifyThumbnail).RequireAuthorization();
+        articles.MapPost("/{id:long}/publish", PublishArticle).RequireAuthorization();
+        articles.MapPost("/{id:long}/unpublish", UnpublishArticle).RequireAuthorization();
+        articles.MapDelete("/{id:long}", DeleteArticle).RequireAuthorization();
     }
 
     /// <summary>
@@ -48,11 +49,20 @@ public static class ArticlesEndpoints
     /// </summary>
     /// <param name="articleService"></param>
     /// <returns></returns>
-    private static async Task<Ok<IEnumerable<ArticleResponse>>> GetArticles(IArticleService articleService, [FromQuery] bool published = true)
+    private static async Task<Results<Ok<IEnumerable<ArticleResponse>>, NotFound>> GetArticles(IArticleService articleService, ClaimsPrincipal user, [FromQuery] bool published = true)
     {
         if (!published) // 非公開記事も取得, この場合アクセストークンを必要とする。
         {
-            throw new NotImplementedException();
+            if (user.Identity != null && !user.Identity.IsAuthenticated)
+            {
+                return TypedResults.NotFound();
+            }
+            else
+            {
+                IEnumerable<Article> articles1 = await articleService.GetAllAsync();
+                IEnumerable<ArticleResponse> responses = articles1.Adapt<IEnumerable<ArticleResponse>>();
+                return TypedResults.Ok(responses);
+            }
         }
 
         IEnumerable<Article> articles = await articleService.GetAllPublishedAsync();
@@ -66,7 +76,7 @@ public static class ArticlesEndpoints
     /// <param name="articleService"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    private static async Task<Results<Ok<ArticleResponse>, NotFound>> GetArticle(IArticleService articleService, long id)
+    private static async Task<Results<Ok<ArticleResponse>, NotFound>> GetArticle(IArticleService articleService, ClaimsPrincipal user, long id)
     {
         Article? article = await articleService.GetByIdAsync(id);
         if (article == null)
@@ -76,7 +86,10 @@ public static class ArticlesEndpoints
 
         if (!article.IsPublished) // 非公開記事の場合, アクセストークンを必要とする。
         {
-            throw new NotImplementedException();
+            if (user.Identity != null && !user.Identity.IsAuthenticated)
+            {
+                return TypedResults.NotFound();
+            }
         }
 
         ArticleResponse response = article.Adapt<ArticleResponse>();
