@@ -99,8 +99,6 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
-// TODO: 許可されたIPアドレスのみ管理画面, ログインAPIを通せるように設定する。(CFを経由してアクセスすることも考慮すること。)
-
 app.UseMiddleware<IpWhitelistMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
