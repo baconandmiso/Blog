@@ -25,9 +25,14 @@ internal static class SnowflakeService
         };
 
         var snowflake = new Snowflake(settings);
-        var timetamp = snowflake.DecodeID(id).Timestamp;
+        var decoded = snowflake.DecodeID(id);
 
-        var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(timetamp);
+        var timestampMilliseconds = decoded.Timestamp;
+        var customEpoch = settings.CustomEpoch;
+
+        var duration = TimeSpan.FromMilliseconds(timestampMilliseconds);
+        var dateTimeOffset = (DateTimeOffset)customEpoch + duration;
+
         return dateTimeOffset;
     }
 }
