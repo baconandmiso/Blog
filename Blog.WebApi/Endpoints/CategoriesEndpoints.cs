@@ -4,7 +4,7 @@ using Blog.Shared;
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace WebApi.Endpoints;
+namespace Blog.WebApi.Endpoints;
 
 public static class CategoriesEndpoints
 {

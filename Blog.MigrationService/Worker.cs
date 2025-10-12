@@ -47,7 +47,7 @@ public class Worker : BackgroundService
         var strategy = dbContext.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
         {
-            await dbContext.Database.MigrateAsync(cancellationToken);
+            await dbContext.Database.EnsureCreatedAsync(cancellationToken);
         });
     }
 

@@ -2,7 +2,7 @@ using Blog.Services;
 using Blog.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace WebApi.Endpoints;
+namespace Blog.WebApi.Endpoints;
 
 public static class UserLoginEndpoints
 {

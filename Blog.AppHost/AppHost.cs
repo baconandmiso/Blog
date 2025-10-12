@@ -25,6 +25,7 @@ var migrations = builder.AddProject<Blog_MigrationService>("migrations")
 var webapi = builder.AddProject<Blog_WebApi>("webapi")
         .WithReference(postgres)
         .WithReference(migrations)
+        .WithEnvironment("DatabaseProvider", builder.Configuration["DatabaseProvider"] ?? "SQLite")
         .WaitForCompletion(migrations);
 
 var frontend = builder.AddNpmApp("frontend", "../frontend", "dev")
