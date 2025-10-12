@@ -1,4 +1,4 @@
-namespace Blog.WebApi.Endpoints;
+namespace Blog.WebApi.Middleware;
 
 public class IpWhitelistMiddleware
 {
