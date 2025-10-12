@@ -1,6 +1,6 @@
 ﻿using Blog.Services;
 
-namespace WebApi.Middleware;
+namespace Blog.WebApi.Endpoints;
 
 public class ExceptionHandlingMiddleware
 {

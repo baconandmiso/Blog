@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MiniValidation;
 
-namespace WebApi.Endpoints;
+namespace Blog.WebApi.Endpoints;
 
 public static class ArticlesEndpoints
 {
