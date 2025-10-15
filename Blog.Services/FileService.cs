@@ -1,23 +1,28 @@
-using Blog.Entity;
 using Blog.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using File = Blog.Entity.File;
 
 namespace Blog.Services;
 
-public class AttachmentService : IAttachmentService
+public class FileService : IFileService
 {
-    private readonly IAttachmentRepository _attachmentRepository;
+    private readonly IFileRepository _attachmentRepository;
+
     private readonly ApplicationDbContext _context;
 
-    private readonly string _storagePath; // 保存先フォルダのパス
+    /// <summary>
+    /// 保存先のパス
+    /// </summary>
+    private readonly string _storagePath;
 
-    public AttachmentService(IAttachmentRepository attachmentRepository, ApplicationDbContext context, IConfiguration configuration)
+    public FileService(IFileRepository attachmentRepository, ApplicationDbContext context, IConfiguration configuration)
     {
         _attachmentRepository = attachmentRepository;
+
         _context = context;
 
-        // appsettings.jsonから保存先パスを取得。なければデフォルト値を設定
+        // appsettings.jsonから保存先パスを取得。なければデフォルト値を設定します。
         _storagePath = configuration.GetValue<string>("FileStoragePath") ?? Path.Combine(Directory.GetCurrentDirectory(), "Storage");
     }
 
@@ -27,7 +32,7 @@ public class AttachmentService : IAttachmentService
     /// <param name="file"></param>
     /// <param name="subDirectory"></param>
     /// <returns></returns>
-    public async Task<Attachment> UploadAsync(IFormFile file, string subDirectory)
+    public async Task<File> UploadAsync(IFormFile file, string subDirectory)
     {
         // 1. ファイルのメタデータを取得
         var originalFileName = file.FileName;
@@ -49,7 +54,7 @@ public class AttachmentService : IAttachmentService
             await file.CopyToAsync(stream);
         }
 
-        var attachment = new Attachment
+        var attachment = new File
         {
             OriginalFileName = originalFileName,
             StoredFileName = storedFileName,
@@ -65,6 +70,17 @@ public class AttachmentService : IAttachmentService
     }
 
     /// <summary>
+    /// 指定されたIDのファイルを取得します。
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public async Task<(Stream Stream, string ContentType, string FileName)?> GetAsync(long id)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// アップロードされたファイルを削除します。
     /// </summary>
     /// <param name="id"></param>
@@ -72,13 +88,6 @@ public class AttachmentService : IAttachmentService
     /// <exception cref="NotImplementedException"></exception>
     public async Task DeleteAsync(long id)
     {
-        var attachment = await _attachmentRepository.GetByIdAsync(id);
-        if (attachment == null)
-        {
-            throw new EntityNotFoundException();
-        }
-
-        _attachmentRepository.Delete(attachment);
-        await _context.SaveChangesAsync();
+        throw new NotImplementedException();
     }
 }
