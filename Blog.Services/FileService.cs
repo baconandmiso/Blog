@@ -1,7 +1,6 @@
 using Blog.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Blog.Services;
 
