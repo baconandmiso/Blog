@@ -41,7 +41,16 @@ public class FileService : IFileService
         // 2. サーバー上での一意なファイル名とパスを生成
         var fileExtension = Path.GetExtension(originalFileName);
         var storedFileName = $"{Guid.NewGuid()}{fileExtension}";
-        var directoryPath = Path.Combine(_storagePath, subDirectory);
+
+        var storageRoot = Path.GetFullPath(_storagePath);
+        var relativeSubDirectory = string.IsNullOrWhiteSpace(subDirectory) ? string.Empty : subDirectory;
+        var directoryPath = Path.GetFullPath(Path.Combine(storageRoot, relativeSubDirectory));
+        
+        if (!directoryPath.StartsWith(storageRoot, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Invalid sub directory.");
+        }
+
         var filePath = Path.Combine(directoryPath, storedFileName);
 
         // 3. ディレクトリが存在しなければ作成
