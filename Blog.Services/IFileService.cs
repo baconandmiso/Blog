@@ -1,9 +1,9 @@
-using Blog.Entity;
 using Microsoft.AspNetCore.Http;
+using File = Blog.Entity.File;
 
 namespace Blog.Services;
 
-public interface IAttachmentService
+public interface IFileService
 {
     /// <summary>
     /// ファイルをアップロードします
@@ -11,7 +11,14 @@ public interface IAttachmentService
     /// <param name="file"></param>
     /// <param name="subDirectory"></param>
     /// <returns></returns>
-    Task<Attachment> UploadAsync(IFormFile file, string subDirectory);
+    Task<File> UploadAsync(IFormFile file, string subDirectory);
+
+    /// <summary>
+    /// 指定されたIDのファイルを取得します
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<(Stream Stream, string ContentType, string FileName)?> GetAsync(long id);
 
     /// <summary>
     /// アップロードしたファイルを削除します
