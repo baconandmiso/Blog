@@ -73,13 +73,12 @@ public class FileService : IFileService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
     public async Task<(Stream Stream, string ContentType, string FileName)?> GetAsync(long id)
     {
         var entity = await _attachmentRepository.GetByIdAsync(id);
         if (entity == null)
         {
-            throw new EntityNotFoundException();
+            return null;
         }
 
         var path = Path.Combine(_storagePath, entity.FilePath);
