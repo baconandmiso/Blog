@@ -11,20 +11,16 @@ public class FileService : IFileService
 
     private readonly ApplicationDbContext _context;
 
-    private readonly ILogger<FileService> _logger;
-
     /// <summary>
     /// 保存先のパス
     /// </summary>
     private readonly string _storagePath;
 
-    public FileService(IFileRepository attachmentRepository, ApplicationDbContext context, IConfiguration configuration, ILogger<FileService> logger)
+    public FileService(IFileRepository attachmentRepository, ApplicationDbContext context, IConfiguration configuration)
     {
         _attachmentRepository = attachmentRepository;
 
         _context = context;
-
-        _logger = logger;
 
         // appsettings.jsonから保存先パスを取得。なければデフォルト値を設定します。
         _storagePath = configuration.GetValue<string>("FileStoragePath") ?? Path.Combine(Directory.GetCurrentDirectory(), "Storage");
