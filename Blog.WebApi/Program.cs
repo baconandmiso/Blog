@@ -5,11 +5,12 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using WebApi.Endpoints;
-using WebApi.Middleware;
+using Blog.WebApi.Endpoints;
+using Blog.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,6 +76,8 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IFileRepository, FileRepository>();
 
 TypeAdapterConfig.GlobalSettings.Scan(typeof(MappingProfile).Assembly);
 
@@ -105,5 +108,39 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.RegisterArticlesEndpoints();
 app.RegisterCategoriesEndpoints();
 app.RegisterUserLoginEndpoints();
+app.RegisterFileEndpoints();
+
+var storagePath = app.Configuration.GetValue<string>("FileStoragePath")
+                  ?? Path.Combine(Directory.GetCurrentDirectory(), "Storage");
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(storagePath, "thumbnails")),
+    RequestPath = "/thumbnails"
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(storagePath, "articles", "attachments")),
+    RequestPath = "/articles/attachments"
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(storagePath, "profile", "icon")),
+    RequestPath = "/profile/icon"
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(storagePath, "profile", "banner")),
+    RequestPath = "/profile/banner"
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(storagePath, "emojies")),
+    RequestPath = "/emojies"
+});
 
 app.Run();

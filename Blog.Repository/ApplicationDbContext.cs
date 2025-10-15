@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Blog.Entity;
+using File = Blog.Entity.File;
 
 namespace Blog.Repository;
 
@@ -35,6 +36,11 @@ public class ApplicationDbContext : DbContext
     /// ユーザープロファイルのコレクションへのアクセスを提供します。データベースのUserProfilesテーブルに対応します。
     /// </summary>
     public DbSet<UserProfile> UserProfiles { get; set; }
+
+    /// <summary>
+    /// ファイルのコレクションへのアクセスを提供します。データベースのFilesテーブルに対応します。
+    /// </summary>
+    public DbSet<File> Files { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
