@@ -1,7 +1,7 @@
 using Blog.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using File = Blog.Entity.File;
+using Microsoft.Extensions.Logging;
 
 namespace Blog.Services;
 
@@ -11,16 +11,20 @@ public class FileService : IFileService
 
     private readonly ApplicationDbContext _context;
 
+    private readonly ILogger<FileService> _logger;
+
     /// <summary>
     /// 保存先のパス
     /// </summary>
     private readonly string _storagePath;
 
-    public FileService(IFileRepository attachmentRepository, ApplicationDbContext context, IConfiguration configuration)
+    public FileService(IFileRepository attachmentRepository, ApplicationDbContext context, IConfiguration configuration, ILogger<FileService> logger)
     {
         _attachmentRepository = attachmentRepository;
 
         _context = context;
+
+        _logger = logger;
 
         // appsettings.jsonから保存先パスを取得。なければデフォルト値を設定します。
         _storagePath = configuration.GetValue<string>("FileStoragePath") ?? Path.Combine(Directory.GetCurrentDirectory(), "Storage");
@@ -32,7 +36,7 @@ public class FileService : IFileService
     /// <param name="file"></param>
     /// <param name="subDirectory"></param>
     /// <returns></returns>
-    public async Task<File> UploadAsync(IFormFile file, string subDirectory)
+    public async Task<Entity.File> UploadAsync(IFormFile file, string subDirectory)
     {
         // 1. ファイルのメタデータを取得
         var originalFileName = file.FileName;
@@ -54,7 +58,7 @@ public class FileService : IFileService
             await file.CopyToAsync(stream);
         }
 
-        var attachment = new File
+        var attachment = new Entity.File
         {
             OriginalFileName = originalFileName,
             StoredFileName = storedFileName,
@@ -77,7 +81,20 @@ public class FileService : IFileService
     /// <exception cref="NotImplementedException"></exception>
     public async Task<(Stream Stream, string ContentType, string FileName)?> GetAsync(long id)
     {
-        throw new NotImplementedException();
+        var entity = await _attachmentRepository.GetByIdAsync(id);
+        if (entity == null)
+        {
+            throw new EntityNotFoundException();
+        }
+
+        var path = Path.Combine(_storagePath, entity.FilePath);
+        if (!File.Exists(path))
+        {
+            return null;
+        }
+
+        var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+        return (fileStream, entity.ContentType, entity.OriginalFileName);
     }
 
     /// <summary>
