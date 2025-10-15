@@ -3,7 +3,7 @@ namespace Blog.Entity;
 /// <summary>
 /// 添付ファイルを表すエンティティ。
 /// </summary>
-public class Attachment : SnowflakeEntity
+public class File : SnowflakeEntity
 {
     /// <summary>
     /// 元のファイル名を取得または設定します。
