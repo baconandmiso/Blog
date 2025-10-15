@@ -4,6 +4,7 @@ using Blog.Shared;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using File = System.IO.File;
 
 namespace Blog.Services;
 
