@@ -1,4 +1,5 @@
 using Blog.Services;
+using Blog.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,7 @@ public static class FileEndpoints
         app.MapGet("/api/files/{id:long}", GetFile).WithName("GetFile").RequireAuthorization();
     }
 
-    public static async Task<Results<Created<Entity.File>, BadRequest<string>, ProblemHttpResult>> UploadFile(IFormFile file, [FromForm] string subDirectory, IFileService fileService, LinkGenerator linker)
+    public static async Task<Results<Created<UploadFileResponse>, BadRequest<string>, ProblemHttpResult>> UploadFile(IFormFile file, [FromForm] string subDirectory, IFileService fileService, LinkGenerator linker)
     {
         try
         {
@@ -24,7 +25,7 @@ public static class FileEndpoints
             var attachment = await fileService.UploadAsync(file, subDirectory);
             var url = linker.GetPathByName("GetFile", new { id = attachment.Id });
 
-            return TypedResults.Created(url, attachment);
+            return TypedResults.Created(url, new UploadFileResponse { Id = attachment.Id });
         }
         catch (Exception ex)
         {
