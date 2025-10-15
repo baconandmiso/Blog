@@ -1,7 +1,6 @@
 using Blog.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Blog.Services;
 
@@ -42,7 +41,16 @@ public class FileService : IFileService
         // 2. サーバー上での一意なファイル名とパスを生成
         var fileExtension = Path.GetExtension(originalFileName);
         var storedFileName = $"{Guid.NewGuid()}{fileExtension}";
-        var directoryPath = Path.Combine(_storagePath, subDirectory);
+
+        var storageRoot = Path.GetFullPath(_storagePath);
+        var relativeSubDirectory = string.IsNullOrWhiteSpace(subDirectory) ? string.Empty : subDirectory;
+        var directoryPath = Path.GetFullPath(Path.Combine(storageRoot, relativeSubDirectory));
+        
+        if (!directoryPath.StartsWith(storageRoot, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Invalid sub directory.");
+        }
+
         var filePath = Path.Combine(directoryPath, storedFileName);
 
         // 3. ディレクトリが存在しなければ作成
@@ -74,13 +82,12 @@ public class FileService : IFileService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
     public async Task<(Stream Stream, string ContentType, string FileName)?> GetAsync(long id)
     {
         var entity = await _attachmentRepository.GetByIdAsync(id);
         if (entity == null)
         {
-            throw new EntityNotFoundException();
+            return null;
         }
 
         var path = Path.Combine(_storagePath, entity.FilePath);
