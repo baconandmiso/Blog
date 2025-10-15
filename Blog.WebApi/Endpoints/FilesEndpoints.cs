@@ -8,7 +8,7 @@ public static class FileEndpoints
 {
     public static void RegisterFileEndpoints(this WebApplication app)
     {
-        app.MapPost("/api/files/upload", UploadFile).RequireAuthorization().WithMetadata(new RequestSizeLimitAttribute(400000000000)).DisableAntiforgery();
+        app.MapPost("/api/files/upload", UploadFile).RequireAuthorization().WithMetadata(new RequestSizeLimitAttribute(104857600)).DisableAntiforgery();
         app.MapGet("/api/files/{id:long}", GetFile).WithName("GetFile").RequireAuthorization();
     }
 
