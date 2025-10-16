@@ -17,8 +17,3 @@ public static class UserLoginEndpoints
         return TypedResults.Ok(new LoginResponse { Token = token });
     }
 }
-
-public class LoginResponse
-{
-    public string Token { get; set; } = string.Empty;
-}
