@@ -4,7 +4,7 @@
   <Project Path="Blog.Repository/Blog.Repository.csproj" />
   <Project Path="Blog.ServiceDefaults/Blog.ServiceDefaults.csproj" />
   <Project Path="Blog.Services/Blog.Services.csproj" />
-  <Project Path="Blog.Shared/Blog.Shared.csproj" Id="2873c508-a047-4b3f-9ab9-3cb1e07124df" />
+  <Project Path="Blog.Shared/Blog.Shared.csproj" />
   <Project Path="Blog.WebApi/Blog.WebApi.csproj" />
   <Project Path="Blog.MigrationService/Blog.MigrationService.csproj" />
 </Solution>
