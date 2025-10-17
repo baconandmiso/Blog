@@ -34,6 +34,6 @@ public class MappingProfile : IRegister
 
         // Article から ArticleResponse へのマッピング
         config.NewConfig<Article, ArticleResponse>()
-            .Map(dest => dest.Categories, src => src.ArticleCategories.Select(ac　=> ac.Category));
+            .Map(dest => dest.Categories, src => src.ArticleCategories.Select(ac => ac.Category));
     }
 }
