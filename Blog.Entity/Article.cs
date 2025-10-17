@@ -16,9 +16,9 @@ public class Article : SnowflakeEntity
     public required string Content { get; set; }
 
     /// <summary>
-    /// 記事のサムネイル画像のURLを取得または設定します。
+    /// 記事のサムネイル画像のIDを取得または設定します。
     /// </summary>
-    public string? ThumbnailUrl { get; set; }
+    public long? ThumbnailId { get; set; }
 
     /// <summary>
     /// 記事が公開されているかどうかを示す値を取得または設定します。
@@ -41,4 +41,9 @@ public class Article : SnowflakeEntity
     /// この記事に関連付けられているカテゴリのコレクションを取得します。
     /// </summary>
     public ICollection<ArticleCategory> ArticleCategories { get; private set; } = new List<ArticleCategory>();
+
+    /// <summary>
+    /// この記事に関連づけられているサムネイル画像を取得または設定します。
+    /// </summary>
+    public Entity.File? Thumbnail { get; set; }
 }
