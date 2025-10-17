@@ -264,29 +264,15 @@ public class ArticleService : IArticleService
     /// <returns>
     /// 更新が成功した場合はtrue，記事が見つからなかった場合はfalseを返すタスク。
     /// </returns>
-    public async Task UpdateThumbnailAsync(long articleId, string base64Image, string webRootPath)
+    public async Task UpdateThumbnailAsync(long articleId, long fileId)
     {
         var article = await _articleRepository.GetByIdAsync(articleId);
         if (article is null)
         {
-            throw new EntityNotFoundException();
+            return;
         }
 
-        var parts = base64Image.Split(',');
-        var imagePart = parts.Length > 1 ? parts[1] : parts[0];
-
-        byte[] imageBytes = Convert.FromBase64String(imagePart);
-
-        var fileName = $"{Guid.NewGuid()}.png";
-        var savePath = Path.Combine(webRootPath, "thumbnails", $"{articleId}");
-        var filePath = Path.Combine(savePath, fileName);
-
-        Directory.CreateDirectory(savePath);
-
-        await File.WriteAllBytesAsync(filePath, imageBytes);
-
-        var fileUrl = $"/thumbnails/{articleId}/{fileName}";
-        article.ThumbnailUrl = fileUrl;
+        article.ThumbnailId = fileId;
 
         _articleRepository.Update(article);
         await _context.SaveChangesAsync();
