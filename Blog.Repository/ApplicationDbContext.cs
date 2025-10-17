@@ -60,5 +60,11 @@ public class ApplicationDbContext : DbContext
             .HasOne(ac => ac.Category)
             .WithMany(c => c.ArticleCategories)
             .HasForeignKey(ac => ac.CategoryId);
+        
+        modelBuilder.Entity<Article>()
+            .HasOne(a => a.Thumbnail)
+            .WithMany()
+            .HasForeignKey(a => a.ThumbnailId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
