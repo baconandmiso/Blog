@@ -92,5 +92,5 @@ public interface IArticleService
     /// <returns>
     /// 更新が成功した場合はtrue，記事が見つからなかった場合はfalseを返すタスク。
     /// </returns>
-    Task UpdateThumbnailAsync(long articleId, string base64Image, string webRootPath);
+    Task UpdateThumbnailAsync(long articleId, long fileId);
 }
