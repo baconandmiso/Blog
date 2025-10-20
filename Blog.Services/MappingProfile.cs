@@ -1,11 +1,20 @@
 ﻿using Blog.Entity;
 using Blog.Shared;
 using Mapster;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Configuration;
 
 namespace Blog.Services;
 
 public class MappingProfile : IRegister
 {
+    private readonly IConfiguration _configuration;
+
+    public MappingProfile(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
     public void Register(TypeAdapterConfig config)
     {
         // CreateArticleRequest から Article へのマッピング
@@ -34,6 +43,15 @@ public class MappingProfile : IRegister
 
         // Article から ArticleResponse へのマッピング
         config.NewConfig<Article, ArticleResponse>()
-            .Map(dest => dest.Categories, src => src.ArticleCategories.Select(ac => ac.Category));
+            .Map(dest => dest.Categories, src => src.ArticleCategories.Select(ac => ac.Category))
+            .Map(dest => dest.ThumbnailUrl, src => src.Thumbnail != null ? src.Thumbnail.FilePath : null)
+            .AfterMapping((src, dest, context) =>
+            {
+                if (!string.IsNullOrEmpty(dest.ThumbnailUrl))
+                {
+                    var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                    dest.ThumbnailUrl = $"{baseUrl}/{dest.ThumbnailUrl}";
+                }
+            });
     }
 }
