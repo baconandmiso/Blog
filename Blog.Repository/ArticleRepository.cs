@@ -19,6 +19,7 @@ public class ArticleRepository : Repository<Article>, IArticleRepository
             .Where(a => a.IsPublished)
             .Include(a => a.ArticleCategories)
             .ThenInclude(ac => ac.Category)
+            .Include(a => a.Thumbnail)
             .OrderByDescending(a => a.PublishedAt)
             .ToListAsync();
     }
@@ -32,6 +33,7 @@ public class ArticleRepository : Repository<Article>, IArticleRepository
         return await _context.Articles
             .Include(a => a.ArticleCategories)
             .ThenInclude(ac => ac.Category)
+            .Include(a => a.Thumbnail)
             .ToListAsync();
     }
 
@@ -45,6 +47,7 @@ public class ArticleRepository : Repository<Article>, IArticleRepository
         return await _context.Articles
             .Include(a => a.ArticleCategories)
             .ThenInclude(ac => ac.Category)
+            .Include(a => a.Thumbnail)
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 }
