@@ -4,7 +4,6 @@ using Blog.Shared;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using File = System.IO.File;
 
 namespace Blog.Services;
 
@@ -259,12 +258,11 @@ public class ArticleService : IArticleService
     /// 記事のサムネイル画像を更新します。
     /// </summary>
     /// <param name="articleId">サムネイルを更新する記事のID。</param>
-    /// <param name="base64Image">Base64エンコードされた画像データ。</param>
-    /// <param name="webRootPath">ファイルを保存するWebルートの物理パス。</param>
+    /// <param name="fileId">新しいサムネイル画像のファイルID。</param>
     /// <returns>
     /// 更新が成功した場合はtrue，記事が見つからなかった場合はfalseを返すタスク。
     /// </returns>
-    public async Task UpdateThumbnailAsync(long articleId, long fileId)
+    public async Task UpdateThumbnailAsync(long articleId, long? fileId)
     {
         var article = await _articleRepository.GetByIdAsync(articleId);
         if (article is null)
