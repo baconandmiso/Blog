@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
+using System.Reflection;
+using Blog.Entity;
+using Blog.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,11 +82,24 @@ builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 
-TypeAdapterConfig.GlobalSettings.Scan(typeof(MappingProfile).Assembly);
+var configuration = builder.Configuration;
+var imageUrlBase = configuration.GetValue<string>("AppSettings:ImageUrlBase");
 
-builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
+var globalSettings = TypeAdapterConfig.GlobalSettings;
 
-builder.Services.AddSingleton<IMapper, ServiceMapper>();
+globalSettings.Scan(Assembly.GetExecutingAssembly());
+
+if (!string.IsNullOrEmpty(imageUrlBase))
+{
+    globalSettings.NewConfig<Article, ArticleResponse>()
+        .Map(dest => dest.ThumbnailUrl,
+             src => (src.Thumbnail.FilePath == null || src.Thumbnail.FilePath.StartsWith("http")) 
+                    ? src.Thumbnail.FilePath // 既にURLか，null ならそのまま
+                    : $"{imageUrlBase.TrimEnd('/')}/{src.Thumbnail.FilePath.TrimStart('/')}"); // ベースURLと結合
+}
+
+builder.Services.AddSingleton(globalSettings);
+builder.Services.AddScoped<IMapper, ServiceMapper>();
 
 builder.Services.Configure<JsonOptions>(options =>
 {
