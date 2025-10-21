@@ -48,6 +48,7 @@ public static class ArticlesEndpoints
     /// 記事を取得します
     /// </summary>
     /// <param name="articleService"></param>
+    /// <param name="published">falseを指定した場合, 非公開の記事を取得します。</param>
     /// <returns></returns>
     private static async Task<Results<Ok<IEnumerable<ArticleResponse>>, NotFound>> GetArticles(IArticleService articleService, ClaimsPrincipal user, [FromQuery] bool published = true)
     {
@@ -120,7 +121,7 @@ public static class ArticlesEndpoints
     private static async Task<NoContent> ModifyThumbnail(IArticleService articleService, IWebHostEnvironment env, long id, ArticleThumbnailUpdateRequest request)
     {
         var webRootPath = env.WebRootPath;
-        await articleService.UpdateThumbnailAsync(id, request.Image!, webRootPath);
+        await articleService.UpdateThumbnailAsync(id, request.ThumbnailId);
         return TypedResults.NoContent();
     }
 
